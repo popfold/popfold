@@ -1,0 +1,104 @@
+{
+  "$schema": "../../../schema/home.schema.json",
+  "id": "storybook",
+  "name": "Pop-up storybook",
+  "blurb": "Starter for a story told page by page: a pop-up book whose scenes fold up as its pages turn.",
+  "book": {
+    "pages": [
+      { "id": "home", "label": "Home", "color": "#D7EEC2" },
+      { "id": "forest", "label": "Forest", "color": "#A7D08C" },
+      { "id": "sea", "label": "Sea", "color": "#A9D6F0" },
+      { "id": "hill", "label": "Hill", "color": "#E6DDF2" },
+      { "id": "night", "label": "Night", "color": "#34406E" }
+    ],
+    "cover": "#B5523B",
+    "paper": "#FBF4E4",
+    "closed": true
+  },
+  "beats": [
+    { "id": "cover", "name": "Cover", "camera": [0.6, 6.5, 8.9], "lookAt": [0, 0.5, 0.3], "set": { "side": 1 } },
+    { "id": "home", "name": "Home", "camera": [0.6, 6.5, 8.9], "lookAt": [0, 0.5, 0.3], "set": { "side": 1 }, "zones": { "cover": 1 } },
+    { "id": "forest", "name": "Forest", "camera": [0.6, 6.5, 8.9], "lookAt": [0, 0.5, 0.3], "set": { "side": -1 }, "zones": { "cover": 1, "home": 1 } },
+    { "id": "sea", "name": "Sea", "camera": [0.6, 6.5, 8.9], "lookAt": [0, 0.5, 0.3], "set": { "side": 1 }, "zones": { "cover": 1, "home": 1, "forest": 1 } },
+    { "id": "hill", "name": "Hill", "camera": [0.6, 6.5, 8.9], "lookAt": [0, 0.5, 0.3], "set": { "side": -1 }, "zones": { "cover": 1, "home": 1, "forest": 1, "sea": 1 } },
+    { "id": "night", "name": "Night", "camera": [0.6, 6.5, 8.9], "lookAt": [0, 0.5, 0.3], "set": { "side": 1 }, "zones": { "cover": 1, "home": 1, "forest": 1, "sea": 1, "hill": 1 } }
+  ],
+  "pieces": [
+    { "id": "hills", "room": "home", "kind": "vfold", "at": [0, -0.55], "opts": { "shape": "hills-sun", "w": 4.6, "h": 1.4, "angle": 78, "toward": "front", "color": "#6DB35A", "color2": "#FFB23F" } },
+    {
+      "id": "house", "room": "home", "kind": "box", "at": [0, 0.55], "opts": { "w": 1.3, "h": 0.8, "d": 0.8, "roof": 0.5, "color": "#F6E7C8", "color2": "#D35D47", "color3": "#5B7FB6" },
+      "story": {
+        "title": "Where it starts",
+        "text": "Replace this with a sentence about where your story begins, and who lives here.",
+        "tags": ["Beginning"]
+      }
+    },
+    { "id": "tree", "room": "home", "kind": "stand", "at": [-1.95, 0.35], "opts": { "shape": "tree", "w": 0.9, "h": 1.2, "lean": "front", "color": "#5FAF5A" } },
+    { "id": "pine", "room": "home", "kind": "stand", "at": [1.95, 0.25], "opts": { "shape": "pine", "w": 0.8, "h": 1.3, "lean": "front", "color": "#3F8F4F" } },
+    { "id": "fence", "room": "home", "kind": "stand", "at": [-2.4, 1.7], "opts": { "shape": "fence", "w": 1.1, "h": 0.28, "lean": "front", "color": "#FFFFFF" } },
+    { "id": "flower-pink", "room": "home", "kind": "stand", "at": [-0.9, 1.55], "opts": { "shape": "flower", "w": 0.32, "h": 0.42, "lean": "front", "color": "#F28AA8" } },
+    { "id": "flower-white", "room": "home", "kind": "stand", "at": [-1.3, 1.65], "opts": { "shape": "flower", "w": 0.28, "h": 0.34, "lean": "front", "color": "#FFFFFF" } },
+    { "id": "flower-blue", "room": "home", "kind": "stand", "at": [1, 1.6], "opts": { "shape": "flower", "w": 0.32, "h": 0.38, "lean": "front", "color": "#9B7FD1" } },
+    { "id": "bush", "room": "home", "kind": "fan", "at": [0, 1.45], "opts": { "shape": "dome", "r": 0.34, "fins": 7, "color": "#4E9E4C", "color2": "#5DAE57" } },
+    { "id": "hills", "room": "forest", "kind": "vfold", "at": [0, -0.55], "opts": { "shape": "hills", "w": 4.6, "h": 1.25, "angle": 78, "toward": "front", "color": "#3E7F4C" } },
+    {
+      "id": "big-pine", "room": "forest", "kind": "vfold", "at": [0, 0.35], "opts": { "shape": "pine", "w": 1.4, "h": 1.5, "angle": 45, "toward": "front", "fins": 4, "color": "#2F7A45", "color2": "#7A5236" },
+      "story": {
+        "title": "The tallest tree",
+        "text": "A short story about the first thing that happens on the way: who is met, and what is found.",
+        "tags": ["Chapter one"]
+      }
+    },
+    { "id": "pine-left", "room": "forest", "kind": "stand", "at": [-1.5, 0.1], "opts": { "shape": "pine", "w": 0.9, "h": 1.4, "lean": "front", "color": "#3F8F4F" } },
+    { "id": "pine-right", "room": "forest", "kind": "stand", "at": [1.55, 0], "opts": { "shape": "pine", "w": 0.9, "h": 1.5, "lean": "front", "color": "#2F7A45" } },
+    { "id": "tree", "room": "forest", "kind": "stand", "at": [-2.45, 0.6], "opts": { "shape": "tree", "w": 0.7, "h": 1, "lean": "front", "color": "#5FAF5A" } },
+    { "id": "pine-far", "room": "forest", "kind": "stand", "at": [2.5, 0.7], "opts": { "shape": "pine", "w": 0.6, "h": 1, "lean": "front", "color": "#4C9A55" } },
+    { "id": "mushroom", "room": "forest", "kind": "stand", "at": [-0.85, 1.6], "opts": { "shape": "mushroom", "w": 0.38, "h": 0.35, "lean": "front", "color": "#D8483A" } },
+    { "id": "mushroom-small", "room": "forest", "kind": "stand", "at": [0.9, 1.55], "opts": { "shape": "mushroom", "w": 0.42, "h": 0.4, "lean": "front", "color": "#E7863A" } },
+    { "id": "log", "room": "forest", "kind": "fan", "at": [0, 1.5], "opts": { "shape": "tube", "r": 0.2, "len": 0.7, "fins": 6, "color": "#9A6A45", "color2": "#B9855A" } },
+    { "id": "sea", "room": "sea", "kind": "vfold", "at": [0, -0.55], "opts": { "shape": "waves-sun", "w": 4.6, "h": 1.35, "angle": 78, "toward": "front", "color": "#3F8FCB", "color2": "#FFD34D" } },
+    {
+      "id": "boat", "room": "sea", "kind": "vfold", "at": [0, 0.75], "opts": { "shape": "boat", "w": 1.6, "h": 1.35, "angle": 40, "toward": "back", "color": "#E2574C", "color2": "#FFFFFF" },
+      "story": {
+        "title": "Setting sail",
+        "text": "The middle of the story: where the trip goes, and what goes wrong on the way.",
+        "tags": ["Chapter two"]
+      }
+    },
+    { "id": "wave-back-left", "room": "sea", "kind": "stand", "at": [-1.6, 0.15], "opts": { "shape": "wave", "w": 1.5, "h": 0.3, "lean": "front", "color": "#4C9AD3" } },
+    { "id": "wave-back-right", "room": "sea", "kind": "stand", "at": [1.6, 0.15], "opts": { "shape": "wave", "w": 1.5, "h": 0.3, "lean": "front", "color": "#4C9AD3" } },
+    { "id": "wave-left", "room": "sea", "kind": "stand", "at": [-1.6, 0.9], "opts": { "shape": "wave", "w": 1.5, "h": 0.3, "lean": "front", "color": "#5AA7DB" } },
+    { "id": "wave-right", "room": "sea", "kind": "stand", "at": [1.6, 0.9], "opts": { "shape": "wave", "w": 1.5, "h": 0.3, "lean": "front", "color": "#5AA7DB" } },
+    { "id": "wave-front-left", "room": "sea", "kind": "stand", "at": [-1.4, 1.6], "opts": { "shape": "wave", "w": 1.6, "h": 0.28, "lean": "front", "color": "#6DB6E3" } },
+    { "id": "wave-front-right", "room": "sea", "kind": "stand", "at": [1.4, 1.6], "opts": { "shape": "wave", "w": 1.6, "h": 0.28, "lean": "front", "color": "#6DB6E3" } },
+    { "id": "lighthouse", "room": "sea", "kind": "stand", "at": [2.6, 0.5], "opts": { "shape": "turret", "w": 0.5, "h": 1.1, "lean": "front", "color": "#FFFFFF", "color2": "#D35D47", "color3": "#5A4A6A" } },
+    { "id": "palm", "room": "sea", "kind": "stand", "at": [-2.6, 0.45], "opts": { "shape": "tree", "w": 0.5, "h": 0.9, "lean": "front", "color": "#4FA35A" } },
+    { "id": "mountain", "room": "hill", "kind": "vfold", "at": [0, -0.55], "opts": { "shape": "mountain", "w": 4.6, "h": 1.45, "angle": 76, "toward": "front", "color": "#7D77AE", "color2": "#FFFFFF" } },
+    {
+      "id": "castle", "room": "hill", "kind": "box", "at": [0, 0.55], "opts": { "w": 1.5, "h": 0.9, "d": 0.8, "color": "#EFE6D4", "color2": "#C9BBA2", "color3": "#5A4A6A" },
+      "story": {
+        "title": "At the top",
+        "text": "The highest point of the story, and what it took to get there.",
+        "tags": ["Chapter three"]
+      }
+    },
+    { "id": "turret-left", "room": "hill", "kind": "stand", "at": [-1.35, 1.15], "opts": { "shape": "turret", "w": 0.55, "h": 0.82, "lean": "front", "color": "#EFE6D4", "color2": "#D35D47", "color3": "#5A4A6A" } },
+    { "id": "turret-right", "room": "hill", "kind": "stand", "at": [1.35, 1.15], "opts": { "shape": "turret", "w": 0.55, "h": 0.82, "lean": "front", "color": "#EFE6D4", "color2": "#D35D47", "color3": "#5A4A6A" } },
+    { "id": "pine-left", "room": "hill", "kind": "stand", "at": [-2.3, 0.3], "opts": { "shape": "pine", "w": 0.7, "h": 1, "lean": "front", "color": "#4C7A5A" } },
+    { "id": "pine-right", "room": "hill", "kind": "stand", "at": [2.3, 0.3], "opts": { "shape": "pine", "w": 0.7, "h": 1, "lean": "front", "color": "#4C7A5A" } },
+    { "id": "hills", "room": "night", "kind": "vfold", "at": [0, -0.55], "opts": { "shape": "hills-sun", "w": 4.6, "h": 1.4, "angle": 78, "toward": "front", "color": "#22305C", "color2": "#FFF3B0" } },
+    {
+      "id": "house", "room": "night", "kind": "box", "at": [0, 0.55], "opts": { "w": 1.3, "h": 0.8, "d": 0.8, "roof": 0.5, "color": "#E9DDC2", "color2": "#7A3E52", "color3": "#FFD34D" },
+      "story": {
+        "title": "Home again",
+        "text": "How the story ends, and what is different now.",
+        "tags": ["The end"]
+      }
+    },
+    { "id": "tree", "room": "night", "kind": "stand", "at": [-1.95, 0.35], "opts": { "shape": "tree", "w": 0.9, "h": 1.2, "lean": "front", "color": "#2F5E4A" } },
+    { "id": "pine", "room": "night", "kind": "stand", "at": [1.95, 0.25], "opts": { "shape": "pine", "w": 0.8, "h": 1.3, "lean": "front", "color": "#284F40" } },
+    { "id": "star-left", "room": "night", "kind": "stand", "at": [-1.1, 1.6], "opts": { "shape": "star", "w": 0.36, "h": 0.36, "lean": "front", "color": "#FFE58A" } },
+    { "id": "star-right", "room": "night", "kind": "stand", "at": [1.1, 1.55], "opts": { "shape": "star", "w": 0.3, "h": 0.3, "lean": "front", "color": "#FFE58A" } },
+    { "id": "bush", "room": "night", "kind": "fan", "at": [0, 1.45], "opts": { "shape": "dome", "r": 0.34, "fins": 7, "color": "#2F5E4A", "color2": "#3A6B55" } }
+  ]
+}

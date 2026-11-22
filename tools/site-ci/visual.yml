@@ -1,0 +1,76 @@
+# The visual test for a Popfold site: on a Machine.dev GPU runner, capture the site's stills as they were before a
+# change and as they are after it, on the same machine, and fail if any picture differs. Each side captures with the
+# Popfold it is pinned to, so moving Popfold (popfold update) is tested too. A run that fails uploads the stills
+# before and after, to look at. Written by `popfold init` and `popfold update` (from Popfold's tools/site-ci/); a
+# site may change it.
+#
+# Popfold is a package from npm (@popfold/engine) that each side's pnpm install fetches, at the release its
+# package.json names. Needs: the Machine Provisioner GitHub App on the organisation, and self-hosted runners allowed
+# for this repository.
+name: Visual test
+
+# Until 1.0.0 every test runs on the developer's machine (Popfold's AGENTS.md, rule 9): this runs only when started by
+# hand (gh workflow run visual.yml), to check the workflow itself. Add push and pull_request back after 1.0.0.
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: "Compare with this commit or tag. Default: the commit before this one; the same commit checks that captures repeat"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: visual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stills:
+    runs-on: machine/id=${{ github.run_id }}/gpu=t4/tenancy=spot
+    timeout-minutes: 25
+    env:
+      POPFOLD_GPU: require   # fail rather than draw in software for half an hour
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: after
+          fetch-depth: 0
+      - name: Which commit to compare with
+        id: base
+        working-directory: after
+        env:
+          INPUT: ${{ github.event.inputs.base }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          base="${INPUT:-${PR_BASE:-$BEFORE}}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then base="$(git rev-parse HEAD^)"; fi
+          base="$(git rev-parse "$base^{commit}")"
+          echo "sha=$base" >> "$GITHUB_OUTPUT"
+          echo "Comparing $(git rev-parse --short HEAD) with $(git rev-parse --short "$base")"
+      - uses: actions/checkout@v7
+        with:
+          path: before
+          ref: ${{ steps.base.outputs.sha }}
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: after/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Chrome and the Vulkan loader
+        run: |
+          wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ./google-chrome-stable_current_amd64.deb libvulkan1 vulkan-tools fonts-dejavu-core > /dev/null
+          nvidia-smi --query-gpu=name,driver_version --format=csv,noheader
+      - run: (cd after && pnpm install --frozen-lockfile) && (cd before && pnpm install --frozen-lockfile)
+      - name: Stills before and after, compared
+        run: node after/node_modules/popfold/tools/visual-test.mjs --before before --after after --report "$RUNNER_TEMP/report"
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stills-before-and-after
+          path: ${{ runner.temp }}/report/
+          if-no-files-found: ignore

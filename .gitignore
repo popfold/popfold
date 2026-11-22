@@ -1,0 +1,23 @@
+# dependencies and build output
+node_modules/
+dist/
+
+# local tool state
+.vite/
+*.log
+.env
+.env.*
+
+# editor and OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Blender backups
+*.blend1
+*.blend2
+
+# one machine's paths and services
+LOCAL.md

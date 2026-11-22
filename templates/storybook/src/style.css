@@ -1,0 +1,86 @@
+:root {
+  --desk: #EADFC9;
+  --desk-deep: #D9C8A8;
+  --ink: #3A2A1E;
+  --soft: #6B5646;
+  --cover: #B5523B;
+  --leaf: #5F9E58;
+  --sun: #FFB23F;
+  --display: 'Bricolage Grotesque Variable', Georgia, serif;
+  --body: 'DM Sans Variable', system-ui, sans-serif;
+  color-scheme: light;
+}
+/* the Bulgarian page (bg/): Bricolage Grotesque and DM Sans have no Cyrillic, so it is set in Rubik and Nunito,
+   which do. A browser fetches a font's Cyrillic only for a page that shows Cyrillic. */
+:root:lang(bg) {
+  --display: 'Rubik Variable', Georgia, serif;
+  --body: 'Nunito Variable', system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; font: 17px/1.55 var(--body); color: var(--ink); background: var(--desk); overflow-x: hidden; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--cover); outline-offset: 3px; border-radius: 6px; }
+.skip { position: absolute; left: -9999px; top: 8px; z-index: 50; background: #fff; color: var(--ink); padding: 10px 16px; border-radius: 10px; }
+.skip:focus { left: 16px; }
+
+.bg { position: fixed; inset: 0; z-index: -2; background: radial-gradient(110% 80% at 50% 35%, #F6EEDD 0%, var(--desk) 55%, var(--desk-deep) 100%); }
+#scene { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100lvh; z-index: -1; display: block; }
+#scene.is-hover { cursor: pointer; }
+.no-webgl #scene { display: none; }
+
+.site-header {
+  position: fixed; inset: 0 0 auto; z-index: 10; display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 16px clamp(16px, 4vw, 40px);
+}
+.brand { font: 800 24px var(--display); text-decoration: none; letter-spacing: -0.02em; }
+.brand b { color: var(--cover); }
+nav { display: flex; align-items: center; gap: 6px; }
+nav a { text-decoration: none; font-weight: 600; font-size: 15px; padding: 8px 12px; border-radius: 999px; }
+nav a:not(.btn):hover { background: rgba(58, 42, 30, 0.08); }
+/* the language links: the page's own language is marked (popfoldFallback sets aria-current) */
+.langs { margin-left: auto; gap: 2px; }
+.langs a { font-size: 13px; padding: 6px 9px; }
+.langs a[aria-current="page"] { background: rgba(58, 42, 30, 0.1); }
+
+.btn {
+  display: inline-flex; align-items: center; padding: 12px 20px; border-radius: 999px; font-weight: 700; text-decoration: none;
+  background: var(--cover); color: #FFF8EC; border: 2px solid var(--cover); transition: transform .15s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-small { padding: 8px 14px; font-size: 14px; color: #FFF8EC !important; }
+.btn-ghost { background: transparent; color: var(--cover); }
+
+.stage { min-height: 100vh; display: flex; align-items: center; padding: 96px clamp(16px, 6vw, 80px); }
+.stage[data-text="left"] { justify-content: flex-start; }
+.stage[data-text="right"] { justify-content: flex-end; }
+.stage[data-text="center"] { justify-content: center; }
+.card {
+  width: min(420px, 100%); background: rgba(255, 250, 240, 0.9); border: 1px solid rgba(58, 42, 30, 0.12); border-radius: 18px; padding: clamp(22px, 3vw, 32px);
+  box-shadow: 0 18px 44px -26px rgba(58, 42, 30, 0.55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.card > * + * { margin-top: 14px; }
+.card p { margin-bottom: 0; }
+.card-hero { width: min(500px, 100%); }
+.card-final .actions { justify-content: flex-start; }
+h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; line-height: 1.04; }
+h1 { font-size: clamp(36px, 5vw, 64px); }
+h2 { font-size: clamp(28px, 3.4vw, 42px); }
+h3 { font-size: 19px; }
+.eyebrow { margin: 0; font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--cover); }
+.lead { font-size: 19px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips span { background: rgba(58, 42, 30, 0.08); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 14px; }
+.tap-hint { font-weight: 700; color: var(--leaf); font-size: 15px; }
+.no-webgl .tap-hint { display: none; }
+
+@media (max-width: 820px) {
+  .stage { align-items: flex-end; padding-bottom: 6vh; }
+  .stage[data-text] { justify-content: center; }
+  nav:not(.langs) a:not(.btn) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn { transition: none; }
+}

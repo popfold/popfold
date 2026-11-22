@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Studio</title>
+  <meta name="description" content="Starter site built on Popfold: replace this description with yours." />
+  <meta name="theme-color" content="#1E2A44" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+</head>
+<body>
+  <!-- Starter copy: every [bracketed] line is a placeholder to replace with your own words. -->
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="bg" aria-hidden="true"></div>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <a class="brand" href="#top">your<b>studio</b></a>
+    <nav aria-label="Sections">
+      <a href="#approach">Approach</a>
+      <a href="#services">Services</a>
+      <a class="btn btn-small" href="#contact">Get in touch</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Each .stage section drives one beat of the 3D scene ("beats" in src/home.json), in the same order, and its id is the beat's id. -->
+    <section class="stage" id="top" data-text="left">
+      <div class="card card-hero">
+        <p class="eyebrow">[Your field] consulting</p>
+        <h1>[A one-line promise to your clients.]</h1>
+        <p class="lead">[Two sentences on who you help and what changes for them.]</p>
+        <div class="actions">
+          <a class="btn" href="#contact">Get in touch</a>
+          <a class="btn btn-ghost" href="#approach">Open the box</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="stage" id="approach" data-text="right">
+      <div class="card">
+        <p class="eyebrow">Approach</p>
+        <h2>[How you think.]</h2>
+        <p>[Your method in a few sentences. The desk and whiteboard in the box are yours to restyle in src/home.ts.]</p>
+        <p class="tap-hint">Click the dots in the rooms for the story behind each piece.</p>
+      </div>
+    </section>
+
+    <section class="stage" id="services" data-text="left">
+      <article class="card">
+        <p class="eyebrow">Service 1 · Strategy</p>
+        <h2>[Your first service]</h2>
+        <p>[What it is, who it's for, what they get.]</p>
+        <p class="chips"><span>[Skill]</span><span>[Skill]</span><span>[Skill]</span></p>
+      </article>
+    </section>
+
+    <section class="stage" id="build" data-text="right">
+      <article class="card">
+        <p class="eyebrow">Service 2 · Build</p>
+        <h2>[Your second service]</h2>
+        <p>[What it is, who it's for, what they get.]</p>
+        <p class="chips"><span>[Skill]</span><span>[Skill]</span><span>[Skill]</span></p>
+      </article>
+    </section>
+
+    <section class="stage" id="process" data-text="left">
+      <div class="card">
+        <p class="eyebrow">How it works</p>
+        <h2>[Three steps]</h2>
+        <ol class="steps">
+          <li><span class="num">1</span><div><h3>[Step one]</h3><p>[A sentence.]</p></div></li>
+          <li><span class="num">2</span><div><h3>[Step two]</h3><p>[A sentence.]</p></div></li>
+          <li><span class="num">3</span><div><h3>[Step three]</h3><p>[A sentence.]</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="stage stage-final" id="contact" data-text="center">
+      <div class="card card-final">
+        <h2>[Let's talk.]</h2>
+        <p>[A friendly line about getting in touch.]</p>
+        <div class="actions"><a class="btn" href="mailto:hello@example.com">hello@example.com</a></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>

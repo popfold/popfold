@@ -1,0 +1,73 @@
+# The visual test: on a Machine.dev GPU runner, capture the templates' stills with the engine before a change and
+# with it after, and fail if any still differs. Both captures run on the same machine and the
+# same renderer, each side with its own `popfold stills`, so the stills in the repository, made on someone's own
+# GPU, play no part. A run that fails uploads the stills before and after, to look at.
+#
+# Needs the Machine Provisioner GitHub App on the organisation and self-hosted runners allowed for this repository.
+name: Visual test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: "Compare with this commit or tag. Default: the commit before this one; the same commit checks that captures repeat"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: visual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stills:
+    runs-on: machine/id=${{ github.run_id }}/gpu=t4/tenancy=spot
+    timeout-minutes: 25
+    env:
+      POPFOLD_GPU: require   # fail rather than draw in software for half an hour
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Chrome and the Vulkan loader
+        run: |
+          wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ./google-chrome-stable_current_amd64.deb libvulkan1 vulkan-tools fonts-dejavu-core > /dev/null
+          nvidia-smi --query-gpu=name,driver_version --format=csv,noheader
+          vulkaninfo --summary 2>/dev/null | grep -E "deviceName|driverName" || echo "vulkaninfo found no device"
+      - name: Which commit to compare with
+        id: base
+        env:
+          INPUT: ${{ github.event.inputs.base }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          base="${INPUT:-${PR_BASE:-$BEFORE}}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then base="$(git rev-parse HEAD^)"; fi
+          echo "sha=$(git rev-parse "$base^{commit}")" >> "$GITHUB_OUTPUT"
+          echo "Comparing $(git rev-parse --short HEAD) with $(git rev-parse --short "$base")"
+      - run: pnpm install --frozen-lockfile
+      - name: Stills before and after, compared
+        env:
+          BASE: ${{ steps.base.outputs.sha }}
+        run: |
+          git worktree add -q ../before "$BASE"
+          (cd ../before && pnpm install --frozen-lockfile > /dev/null)
+          # every template, each side captured with its own command (tools/visual-test.mjs; a site runs the same)
+          node tools/visual-test.mjs --before ../before --after . --report "$RUNNER_TEMP/report"
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stills-before-and-after
+          path: ${{ runner.temp }}/report/
+          if-no-files-found: ignore

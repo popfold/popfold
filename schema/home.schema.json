@@ -1,0 +1,900 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://popfold.ca/schema/home.schema.json",
+  "title": "A Popfold home",
+  "description": "What is in a home: its pieces, where they stand and the stories behind them. How each kind of piece is built stays in code (the recipe's `kinds`). Read with readHome() from 'popfold'.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "pieces"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "$ref": "#/definitions/id",
+      "description": "The home's id. Its stills and saved layouts are named after it."
+    },
+    "name": {
+      "type": "string",
+      "description": "The home's name, shown in the studio."
+    },
+    "blurb": {
+      "type": "string",
+      "description": "One line about the home, for the studio."
+    },
+    "look": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base",
+        "lid",
+        "heart",
+        "leftSlab",
+        "rightSlab",
+        "centerFloor",
+        "lidPaper",
+        "leftFloor",
+        "leftWall",
+        "rightFloor",
+        "rightWall"
+      ],
+      "description": "A compact's look: its case, its colours and what each floor and wall is covered with. Leave out for a tower.",
+      "properties": {
+        "shell": {
+          "description": "Which case it comes in: round (soft, the default), crisp (nearly square edges), code (built from simple shapes), or the site's own model.",
+          "oneOf": [
+            {
+              "enum": [
+                "round",
+                "crisp",
+                "code"
+              ]
+            },
+            {
+              "type": "object",
+              "required": [
+                "url"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "parts": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Take some of the case's parts from another case: { \"lid\": \"crisp\" } puts the crisp lid on a round case. A part not named comes from \"shell\". Not for shell \"code\".",
+          "properties": {
+            "base": { "oneOf": [ { "enum": ["round", "crisp"] }, { "type": "object", "required": ["url"], "additionalProperties": false, "properties": { "url": { "type": "string" } } } ] },
+            "lid": { "oneOf": [ { "enum": ["round", "crisp"] }, { "type": "object", "required": ["url"], "additionalProperties": false, "properties": { "url": { "type": "string" } } } ] },
+            "drawers": { "oneOf": [ { "enum": ["round", "crisp"] }, { "type": "object", "required": ["url"], "additionalProperties": false, "properties": { "url": { "type": "string" } } } ] },
+            "walls": { "oneOf": [ { "enum": ["round", "crisp"] }, { "type": "object", "required": ["url"], "additionalProperties": false, "properties": { "url": { "type": "string" } } } ] },
+            "clasp": { "oneOf": [ { "enum": ["round", "crisp"] }, { "type": "object", "required": ["url"], "additionalProperties": false, "properties": { "url": { "type": "string" } } } ] },
+            "heart": { "oneOf": [ { "enum": ["round", "crisp"] }, { "type": "object", "required": ["url"], "additionalProperties": false, "properties": { "url": { "type": "string" } } } ] }
+          }
+        },
+        "corner": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "For shell \"code\": how round the case is, from 0 (nearly sharp) to 1 (soft)."
+        },
+        "base": {
+          "type": "string",
+          "description": "The bottom half of the case."
+        },
+        "lid": {
+          "type": "string",
+          "description": "The lid."
+        },
+        "heart": {
+          "type": "string",
+          "description": "The clasp, and the heart on the lid if it has one."
+        },
+        "leftSlab": {
+          "type": "string",
+          "description": "The left room's base."
+        },
+        "rightSlab": {
+          "type": "string",
+          "description": "The right room's base."
+        },
+        "centerFloor": {
+          "$ref": "#/definitions/surface",
+          "description": "The centre room's floor."
+        },
+        "lidPaper": {
+          "$ref": "#/definitions/surface",
+          "description": "The centre room's back wall: the inside of the lid."
+        },
+        "leftFloor": {
+          "$ref": "#/definitions/surface",
+          "description": "The left room's floor."
+        },
+        "leftWall": {
+          "$ref": "#/definitions/surface",
+          "description": "The left room's wall."
+        },
+        "rightFloor": {
+          "$ref": "#/definitions/surface",
+          "description": "The right room's floor."
+        },
+        "rightWall": {
+          "$ref": "#/definitions/surface",
+          "description": "The right room's wall."
+        },
+        "badges": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": "The three numbered step badges: [background, number] colours for the centre, left and right rooms."
+        },
+        "badgeRing": {
+          "type": "string",
+          "description": "The ring around each badge."
+        },
+        "trim": {
+          "type": "string",
+          "description": "The case's metal fittings: hinges and the clasp's ring (default: the palette's gold)."
+        },
+        "drawerWall": {
+          "type": "string",
+          "description": "The walls that tip up from the drawers, in a modelled case (default: the palette's white)."
+        }
+      }
+    },
+    "emblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The lid's wordmark.",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "heart": {
+          "type": "boolean",
+          "description": "Whether the lid carries a heart (default false)."
+        }
+      }
+    },
+    "swatch": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "The colours shown beside the home in the studio's picker (default: taken from the look, or a tower's floors)."
+    },
+    "mood": {
+      "enum": [
+        "day",
+        "evening"
+      ],
+      "description": "The time of day the home is shown in: day (default) or evening (a dim sun, a warm sky, its lamps on). The site, the studio and the stills all use it."
+    },
+    "floors": {
+      "type": "array",
+      "minItems": 1,
+      "description": "A tower's floors, from the top down. Leave out for a compact.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "color"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/definitions/id",
+            "description": "The floor's id: its pieces' `room`, its zone in a beat, and usually its section's id."
+          },
+          "label": {
+            "type": "string",
+            "description": "The neon sign on the floor's back wall."
+          },
+          "color": {
+            "type": "string",
+            "description": "The floor's neon colour, as a CSS colour."
+          },
+          "height": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "The storey's height (default: the tower's floorHeight, 2.4)."
+          }
+        }
+      }
+    },
+    "tower": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A tower's building, beside its floors: its colours, the pipe beside the lift, the lift and its size. Only with floors.",
+      "properties": {
+        "wall": {
+          "type": "string",
+          "description": "The walls' colour, as a CSS colour (default #1A1830)."
+        },
+        "slab": {
+          "type": "string",
+          "description": "The slabs' colour, as a CSS colour (default #24223D)."
+        },
+        "spine": {
+          "type": "string",
+          "description": "The glowing pipe beside the lift, in this colour, with a branch into every floor. Left out, there is none."
+        },
+        "elevator": {
+          "type": "boolean",
+          "description": "A lift that rides to the open floor (default none)."
+        },
+        "cables": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "The floors' pipes are cables: hidden on closed floors, drawn in as each floor opens (the spine's branch first, then the floor's own in turn), carrying packets once plugged in, and pulled back as it closes. Left out, the pipes are always there.",
+          "properties": {
+            "plug": { "type": "string", "description": "A prop (one of the home's model files) riding each cable's tip: pointing along +Z, its origin where the cable enters it." },
+            "size": { "type": "number", "exclusiveMinimum": 0, "description": "The plug's length (default 0.12)." },
+            "tint": { "type": "string", "description": "The plug's materials whose names start with this take the cable's colour (a boot, say)." }
+          }
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "A floor's width (default 6)."
+        },
+        "depth": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "A floor's depth (default 4)."
+        },
+        "floorHeight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "A storey's height (default 2.4); a floor's own height wins."
+        }
+      }
+    },
+    "book": {
+      "type": "object",
+      "required": ["pages"],
+      "additionalProperties": false,
+      "description": "A pop-up storybook: its pages, each a spread with a scene that folds up as it opens, turned one by one by the story. Leave out for the other homes.",
+      "properties": {
+        "pages": {
+          "type": "array",
+          "minItems": 1,
+          "description": "The book's pages, first to last. Each is a spread (two facing pages) and a room: its pieces' `room`, and its zone in a beat (how far its leaf is turned).",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "$ref": "#/definitions/id", "description": "The page's id: its pieces' `room`, its zone in a beat, and usually its section's id." },
+              "label": { "type": "string", "description": "A short name, for the studio." },
+              "color": { "type": "string", "description": "The colour printed on the page's two sides, as a CSS colour (default: the paper)." },
+              "art": { "type": "string", "description": "A picture printed across the spread, by its address (a file in public/, say): its left half on the left page, its right half on the right. Shaped like the spread (default 6 by 4: 3:2) it fills it." },
+              "stitch": {
+                "description": "Sew the picture as cross-stitch: it is stitched in, one thread colour at a time, as the page opens, and unpicked as it closes. true, or how many stitches across the spread (default 160).",
+                "oneOf": [{ "type": "boolean" }, { "type": "integer", "minimum": 8, "maximum": 600 }]
+              }
+            }
+          }
+        },
+        "width": { "type": "number", "exclusiveMinimum": 0, "description": "A page's width, from the spine to its outer edge (default 3)." },
+        "height": { "type": "number", "exclusiveMinimum": 0, "description": "A page's height, along the spine (default 4)." },
+        "cover": { "type": "string", "description": "The covers' colour, as a CSS colour (default #B5523B)." },
+        "paper": { "type": "string", "description": "The pages' paper, as a CSS colour (default #FBF4E4)." },
+        "closed": { "type": "boolean", "description": "The book starts shut: its front cover lies on the pages and opens with the zone \"cover\" in a beat, as a page turns with its own. No page may then have the id \"cover\"." }
+      }
+    },
+    "diorama": {
+      "type": "object",
+      "required": [
+        "url",
+        "zones"
+      ],
+      "additionalProperties": false,
+      "description": "A modelled room instead of the compact (a GLB from tools/blender/room_to_glb.py). Its art and cover are drawn in code, given to homeFromFile().",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The room model, relative to the site."
+        },
+        "pieces": {
+          "type": "string",
+          "description": "The room's pieces in a model of their own (popfold split-room makes it), relative to the site: the room shows without waiting for them."
+        },
+        "scale": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Metres to scene units (default 0.5)."
+        },
+        "zones": {
+          "type": "object",
+          "required": [
+            "center",
+            "left",
+            "right"
+          ],
+          "additionalProperties": false,
+          "description": "The model's zone that the story's centre (c), left (L) and right (R) fields open.",
+          "properties": {
+            "center": {
+              "type": "string"
+            },
+            "left": {
+              "type": "string"
+            },
+            "right": {
+              "type": "string"
+            }
+          }
+        },
+        "lamp": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+          ],
+          "description": "The piece (or pieces) whose light the story's glow field controls."
+        },
+        "paint": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "The model's own colours, changed: a CSS colour for each material, by its name ({ \"wall\": \"#E8DCC8\" }). A material the art paints (art_*) keeps its art."
+        }
+      }
+    },
+    "beats": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The story: one beat per <section class=\"stage\"> of the page, in the page's order.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "camera",
+          "lookAt"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id of this beat's section in the page."
+          },
+          "name": {
+            "type": "string",
+            "description": "A short name, for the studio's stop buttons and for messages."
+          },
+          "home": {
+            "type": "string",
+            "description": "The home this beat shows, on a page with more than one; left out, the home the beat before it showed. The story moves between homes as it is scrolled."
+          },
+          "camera": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "Where the camera is. The studio shows this in Free orbit and can save it here."
+          },
+          "lookAt": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "The point the camera looks at."
+          },
+          "set": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "What the home does at this beat. Anything left out is 0 (az: 0.8).",
+            "properties": {
+              "c": {
+                "type": "number",
+                "description": "Centre room: 0 closed, 0.45 lid open, 1 furnished."
+              },
+              "L": {
+                "type": "number",
+                "description": "Left room: 0 inside, 0.4 slid out, 0.6 wall up, 1 furnished."
+              },
+              "R": {
+                "type": "number",
+                "description": "Right room, as L."
+              },
+              "glow": {
+                "type": "number",
+                "description": "The centre lamp's glow, 0 to 1."
+              },
+              "badges": {
+                "type": "number",
+                "description": "The numbered step badges over the rooms, 0 to 1."
+              },
+              "hero": {
+                "type": "number",
+                "description": "How much the closed home floats and sways, 0 to 1."
+              },
+              "side": {
+                "type": "number",
+                "description": "Where the home sits on a wide screen: -1 left, 0 centre, 1 right. The text goes opposite."
+              },
+              "av": {
+                "type": "number",
+                "description": "The guide figure: 0 tucked away, 1 out in the home."
+              },
+              "ax": {
+                "type": "number",
+                "description": "The guide's place on the floor, left to right."
+              },
+              "az": {
+                "type": "number",
+                "description": "The guide's place on the floor, back to front."
+              },
+              "wave": {
+                "type": "number",
+                "description": "The guide waves hello, 0 to 1."
+              }
+            }
+          },
+          "zones": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "description": "A tower's floors or a book's pages by id. A floor: 0 closed, 0.3 slid out and lit, 1 furnished. A page: how far its leaf is turned, 0 lying open on the right, 1 turned over onto the left (the last page has none). One left out is 0."
+          }
+        }
+      }
+    },
+    "pieces": {
+      "type": "array",
+      "description": "Every piece in the home. A piece's key is <room>/<id>, or <room>-wall/<id> on a wall.",
+      "items": {
+        "$ref": "#/definitions/piece"
+      }
+    },
+    "stories": {
+      "type": "object",
+      "description": "Stories of pieces the file does not list (a diorama's model parts), by key: <room>/<piece> or <room>-wall/<piece>.",
+      "propertyNames": {
+        "pattern": "^[a-z0-9][a-z0-9-]*/[^/\\s]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "title",
+          "text",
+          "tags"
+        ],
+        "additionalProperties": false,
+        "description": "The story behind a piece: a dot on it, a card when it is clicked, and a paragraph on the page without 3D.",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dot": {
+            "enum": [
+              "top",
+              "front",
+              "below"
+            ],
+            "description": "Where the dot sits: above the piece (default), in front of it (wall pieces) or below it (hanging pieces)."
+          },
+          "meta": {
+            "type": "string",
+            "description": "A line under the title: dates, role, client."
+          },
+          "kicker": {
+            "type": "string",
+            "description": "The card's kicker (default \"Why it's here\")."
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "label",
+                "href"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "href": {
+                  "type": "string",
+                  "description": "http, https or mailto, or a link within the site."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "places": {
+      "type": "object",
+      "description": "Where the studio moved, turned, resized or hid pieces the file does not list, by key. Written by the studio.",
+      "propertyNames": {
+        "pattern": "^[a-z0-9][a-z0-9-]*/[^/\\s]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "p": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "Where it stands."
+          },
+          "r": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "Its turn, in radians."
+          },
+          "s": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Its size, relative to its own."
+          },
+          "hide": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "transitions": {
+      "type": "array",
+      "description": "Links between sections and homes: a card on the page without 3D (when it has a label), a door in 3D (its piece), and later an effect on the way.",
+      "items": {
+        "type": "object",
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "The section (beat id) it starts from; its card goes there."
+          },
+          "fromHome": {
+            "type": "string",
+            "description": "The home it starts from, when a page shows more than one: it works in 3D only while that home is on show, and has a card only on a page that shows it."
+          },
+          "to": {
+            "description": "The section it leads to, or a section of another home.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "home",
+                  "section"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "home": {
+                    "type": "string"
+                  },
+                  "section": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "label": {
+            "type": "string",
+            "description": "The card's words; without one there is no card."
+          },
+          "piece": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*/[^/\\s]+$",
+            "description": "A piece key that takes the link in 3D: its story card gets the link, or a click on it follows the link."
+          },
+          "effect": {
+            "type": "string",
+            "description": "The effect on the way (a later release)."
+          },
+          "strength": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "card": {
+            "type": "boolean",
+            "description": "false leaves it out of the page without 3D."
+          },
+          "via": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 12,
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "description": "Between two neighbouring beats: points the camera passes through on the way, instead of the straight line."
+          },
+          "look": {
+            "enum": [
+              "path",
+              "beats"
+            ],
+            "description": "With via: 'path' looks ahead along the route; 'beats' (default) looks where the beats look."
+          },
+          "cue": {
+            "enum": [
+              "full",
+              "hover",
+              "none"
+            ],
+            "description": "How its door shows it: 'full' (marker, glow on hover, a pulse on arrival; the default), 'hover' (glow and words on hover only), 'none' (nothing: an easter egg)."
+          },
+          "button": {
+            "type": "boolean",
+            "description": "Also a button in its section's text card in 3D (needs a label)."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Lower-case letters, digits and dashes."
+    },
+    "piece": {
+      "type": "object",
+      "required": [
+        "id",
+        "room",
+        "kind",
+        "at"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/id",
+          "description": "This piece's own id, unlike any other in its room (floor pieces and wall pieces are told apart)."
+        },
+        "room": {
+          "type": "string",
+          "description": "Where it is: in a compact, center, left or right; in a tower, a floor's id; in a book, a page's id."
+        },
+        "kind": {
+          "type": "string",
+          "description": "What it is: a name in the recipe's `kinds`, one of its `props` (a model file), or one of Popfold's built-in pieces (builtin/bed, builtin/clothes-rack, builtin/coffee-table, builtin/disco-ball, builtin/floor-lamp, builtin/mirror, builtin/nightstand, builtin/plant, builtin/rug, builtin/sculpture, builtin/shopping-bag, builtin/sofa, builtin/spark)."
+        },
+        "at": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "On the floor: [x, z] from the middle of the floor. On the wall: [x, height]."
+        },
+        "wall": {
+          "type": "boolean",
+          "description": "It hangs on the room's wall rather than standing on the floor."
+        },
+        "turn": {
+          "type": "number",
+          "description": "Turn around the upright axis, in radians (floor pieces). 3.142 is half a turn."
+        },
+        "lift": {
+          "type": "number",
+          "description": "How far above the floor it floats (floor pieces)."
+        },
+        "out": {
+          "type": "number",
+          "description": "How far it stands out from the wall (wall pieces)."
+        },
+        "size": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "A model's longest side, in units (default 1)."
+        },
+        "scale": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Make it this many times its built size (default 1). The studio writes this when a piece is resized."
+        },
+        "delay": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.4,
+          "description": "When it springs in, 0 to 0.4 into its room's pop-in (default: in the order listed)."
+        },
+        "fold": {
+          "enum": ["back", "front", "left", "right"],
+          "description": "Compact and tower: it folds up from lying flat instead of springing in, hinged along the foot of this side (it lies down towards it)."
+        },
+        "hidden": {
+          "type": "boolean",
+          "description": "It is in the home but not shown: parked, for the studio to bring back."
+        },
+        "lamp": {
+          "type": "boolean",
+          "description": "Compact only: this is a lamp whose glow the story controls (any number of pieces may be)."
+        },
+        "opts": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": [
+                  "number",
+                  "string",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "number",
+                    "string",
+                    "boolean"
+                  ]
+                }
+              }
+            ]
+          },
+          "description": "Anything else its kind wants to know: a height, a colour, a list of things on a shelf."
+        },
+        "story": {
+          "type": "object",
+          "required": [
+            "title",
+            "text",
+            "tags"
+          ],
+          "additionalProperties": false,
+          "description": "The story behind the piece: a dot on it, a card when it is clicked, and a paragraph on the page without 3D.",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dot": {
+              "enum": [
+                "top",
+                "front",
+                "below"
+              ],
+              "description": "Where the dot sits: above the piece (default), in front of it (wall pieces) or below it (hanging pieces)."
+            },
+            "meta": {
+              "type": "string",
+              "description": "A line under the title: dates, role, client."
+            },
+            "kicker": {
+              "type": "string",
+              "description": "The card's kicker (default \"Why it's here\")."
+            },
+            "links": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "href"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "href": {
+                    "type": "string",
+                    "description": "http, https or mailto, or a link within the site."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "surface": {
+      "description": "A plain colour, or a pattern drawn in two or more colours.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": [
+            "pattern",
+            "colors"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "pattern": {
+              "enum": [
+                "checker",
+                "stripes",
+                "dots",
+                "waves",
+                "terrazzo"
+              ]
+            },
+            "colors": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "string"
+              },
+              "description": "checker: the two squares. stripes: every stripe. dots and waves: the ground, then the dots or lines. terrazzo: the ground, then the chips."
+            },
+            "count": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "How many squares, stripes, dots or waves across (terrazzo: which scatter of chips)."
+            },
+            "repeat": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "How many times the pattern repeats across the surface (default 1)."
+            }
+          }
+        }
+      ]
+    }
+  }
+}

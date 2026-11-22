@@ -1,0 +1,73 @@
+{
+  "$schema": "../../../schema/home.schema.json",
+  "id": "tower",
+  "name": "Four-floor studio",
+  "blurb": "Starter for a long, vertical story: one floor per chapter, built in code.",
+  "mood": "evening",
+  "floors": [
+    { "id": "discover", "label": "DISCOVER", "color": "#3EE6FF", "height": 2.4 },
+    { "id": "design", "label": "DESIGN", "color": "#FF4FD8", "height": 2.4 },
+    { "id": "build", "label": "BUILD", "color": "#B8FF5C", "height": 2.4 },
+    { "id": "launch", "label": "LAUNCH", "color": "#FFB347", "height": 2.4 }
+  ],
+  "tower": { "wall": "#1A1830", "slab": "#24223D", "spine": "#3EE6FF", "elevator": true },
+  "beats": [
+    { "id": "top", "name": "Tower", "camera": [9, 7.76, 17.5], "lookAt": [0.5, 4.8, 0], "set": { "hero": 1, "side": 1 } },
+    { "id": "discover", "name": "Discover", "camera": [-1.4, 9.4, 12.6], "lookAt": [0.3, 8.3, -0.4], "set": { "side": 1 }, "zones": { "discover": 1 } },
+    { "id": "design", "name": "Design", "camera": [-1.4, 7, 12.6], "lookAt": [0.3, 5.9, -0.4], "set": { "side": -1 }, "zones": { "discover": 1, "design": 1 } },
+    { "id": "build", "name": "Build", "camera": [-1.4, 4.6, 12.6], "lookAt": [0.3, 3.5, -0.4], "set": { "side": 1 }, "zones": { "discover": 1, "design": 1, "build": 1 } },
+    { "id": "launch", "name": "Launch", "camera": [-1.4, 2.2, 12.6], "lookAt": [0.3, 1.1, -0.4], "set": { "side": -1 }, "zones": { "discover": 1, "design": 1, "build": 1, "launch": 1 } },
+    { "id": "contact", "name": "All lit", "camera": [9.5, 7.568, 18.5], "lookAt": [0.5, 4.4, 0], "set": { "hero": 1 }, "zones": { "discover": 1, "design": 1, "build": 1, "launch": 1 } }
+  ],
+  "pieces": [
+    { "id": "desk", "room": "discover", "kind": "desk", "at": [-1.5, -1] },
+    { "id": "chair", "room": "discover", "kind": "chair", "at": [-1.5, -0.15], "turn": 3.142 },
+    { "id": "shelf", "room": "discover", "kind": "shelf", "at": [0.45, -1.6] },
+    {
+      "id": "pinboard", "room": "discover", "wall": true, "kind": "pinboard", "at": [2, 1.2],
+      "story": {
+        "title": "Start with questions",
+        "text": "Replace this with a sentence about how a project starts: who you talk to, and what you look for.",
+        "tags": ["Research", "Interviews"],
+        "dot": "front"
+      }
+    },
+    { "id": "plant", "room": "discover", "kind": "plant", "at": [2.5, 0.7] },
+    {
+      "id": "table", "room": "design", "kind": "drawing-table", "at": [-0.9, -0.7],
+      "story": {
+        "title": "Draw it before building it",
+        "text": "A short story about your design step: what you sketch, who sees it, and how a direction is chosen.",
+        "tags": ["Design", "Prototyping"]
+      }
+    },
+    { "id": "stool-left", "room": "design", "kind": "stool", "at": [-1.5, 0.35] },
+    { "id": "stool-right", "room": "design", "kind": "stool", "at": [-0.3, 0.35] },
+    { "id": "swatches", "room": "design", "wall": true, "kind": "swatches", "at": [1.9, 1.2] },
+    { "id": "plant", "room": "design", "kind": "plant", "at": [-2.5, -1.4] },
+    { "id": "workbench", "room": "build", "kind": "workbench", "at": [-1.3, -1.2] },
+    { "id": "chair", "room": "build", "kind": "chair", "at": [-1.3, -0.35], "turn": 3.142 },
+    {
+      "id": "rack-left", "room": "build", "kind": "rack", "at": [1.3, -1.45],
+      "story": {
+        "title": "Built to keep running",
+        "text": "A sentence on how you build: the tools you trust, how work is tested, and what \"done\" means.",
+        "tags": ["Engineering", "Testing"]
+      }
+    },
+    { "id": "rack-right", "room": "build", "kind": "rack", "at": [2.15, -1.45] },
+    { "id": "crates", "room": "build", "kind": "crates", "at": [2.2, 0.5], "turn": 0.3 },
+    {
+      "id": "rocket", "room": "launch", "kind": "rocket", "at": [-1.3, -0.5],
+      "story": {
+        "title": "Out the door",
+        "text": "A short story about shipping: how a launch goes, and what you watch in the first weeks.",
+        "tags": ["Delivery", "Support"]
+      }
+    },
+    { "id": "screen", "room": "launch", "wall": true, "kind": "screen", "at": [2, 1.25] },
+    { "id": "desk", "room": "launch", "kind": "desk", "at": [0.3, -0.9] },
+    { "id": "chair", "room": "launch", "kind": "chair", "at": [0.3, -0.05], "turn": 3.142 },
+    { "id": "crates", "room": "launch", "kind": "crates", "at": [-2.4, -1.3], "turn": -0.2 }
+  ]
+}

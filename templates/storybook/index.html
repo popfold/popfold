@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Storybook</title>
+  <meta name="description" content="Starter site built on Popfold: replace this description with yours." />
+  <meta name="theme-color" content="#EADFC9" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+</head>
+<body>
+  <!-- Starter copy: every [bracketed] line is a placeholder to replace with your own words. -->
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="bg" aria-hidden="true"></div>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <a class="brand" href="#cover">your<b>story</b></a>
+    <nav aria-label="Sections">
+      <a href="#forest">Forest</a>
+      <a href="#sea">Sea</a>
+      <a href="#hill">Hill</a>
+      <a class="btn btn-small" href="#night">The end</a>
+    </nav>
+    <!-- One link per language: popfoldFallback fills in where each goes (vite.config.ts lists the pages) -->
+    <nav class="langs" aria-label="Languages">
+      <a data-pf-lang="en" lang="en">EN</a>
+      <a data-pf-lang="bg" lang="bg">БГ</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Each .stage section drives one beat of the 3D scene ("beats" in src/home.json), in the same order, and its id
+         is the beat's id. The first beat shows the book shut ("closed" in src/home.json); each beat after it is one
+         page of the book (its "pages"): scrolling opens the cover, then turns them. -->
+    <section class="stage" id="cover" data-text="left">
+      <div class="card card-hero">
+        <p class="eyebrow">[A story by you]</p>
+        <h1>[The story's title]</h1>
+        <p class="lead">[One sentence on what this book is about.]</p>
+        <div class="actions">
+          <a class="btn" href="#home">Open the book</a>
+        </div>
+        <p class="tap-hint">Scroll to open the book and turn its pages. Click a dot for the story behind a piece.</p>
+      </div>
+    </section>
+
+    <section class="stage" id="home" data-text="left">
+      <div class="card">
+        <p class="eyebrow">[Page one]</p>
+        <h2>[Once upon a time, a one-line opening.]</h2>
+        <p>[Two sentences on who this story is about and where it begins.]</p>
+        <div class="actions">
+          <a class="btn" href="#forest">Turn the page</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="stage" id="forest" data-text="right">
+      <article class="card">
+        <p class="eyebrow">[Page two]</p>
+        <h2>[Into the woods.]</h2>
+        <p>[What happens first: who is met, and what is found.]</p>
+      </article>
+    </section>
+
+    <section class="stage" id="sea" data-text="left">
+      <article class="card">
+        <p class="eyebrow">[Page three]</p>
+        <h2>[Across the water.]</h2>
+        <p>[The middle of the story: a trip, a problem, a turn.]</p>
+      </article>
+    </section>
+
+    <section class="stage" id="hill" data-text="right">
+      <article class="card">
+        <p class="eyebrow">[Page four]</p>
+        <h2>[Up the mountain.]</h2>
+        <p>[The highest point of the story, and what it took to get there.]</p>
+      </article>
+    </section>
+
+    <section class="stage stage-final" id="night" data-text="left">
+      <div class="card card-final">
+        <p class="eyebrow">[The end]</p>
+        <h2>[Home again, by night.]</h2>
+        <p>[A last line, and where to go next.]</p>
+        <div class="actions"><a class="btn" href="mailto:hello@example.com">hello@example.com</a></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>

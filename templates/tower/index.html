@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Studio</title>
+  <meta name="description" content="Starter site built on Popfold: replace this description with yours." />
+  <meta name="theme-color" content="#0E0D1C" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+</head>
+<body>
+  <!-- Starter copy: every [bracketed] line is a placeholder to replace with your own words. -->
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="bg" aria-hidden="true"></div>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <a class="brand" href="#top">your<b>studio</b></a>
+    <nav aria-label="Sections">
+      <a href="#discover">Discover</a>
+      <a href="#design">Design</a>
+      <a href="#build">Build</a>
+      <a href="#launch">Launch</a>
+      <a class="btn btn-small" href="#contact">Get in touch</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Each .stage section drives one beat of the 3D scene ("beats" in src/home.json), in the same order, and its id is the
+         beat's id. The four in the middle are the tower's floors (src/home.json), top to bottom. -->
+    <section class="stage" id="top" data-text="left">
+      <div class="card card-hero">
+        <p class="eyebrow">[What you do]</p>
+        <h1>[A one-line promise, from first question to launch.]</h1>
+        <p class="lead">[Two sentences on who you help and what changes for them.]</p>
+        <div class="actions">
+          <a class="btn" href="#contact">Get in touch</a>
+          <a class="btn btn-ghost" href="#discover">Take the lift down</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="stage" id="discover" data-text="left">
+      <article class="card">
+        <p class="eyebrow">Floor 4 · Discover</p>
+        <h2>[How a project starts.]</h2>
+        <p>[What you ask, who you talk to, and what you bring back.]</p>
+        <p class="tap-hint">Click the dots on each floor for the story behind a piece.</p>
+      </article>
+    </section>
+
+    <section class="stage" id="design" data-text="right">
+      <article class="card">
+        <p class="eyebrow">Floor 3 · Design</p>
+        <h2>[How you shape the idea.]</h2>
+        <p>[What gets drawn or prototyped, and how a direction is chosen.]</p>
+        <p class="chips"><span>[Skill]</span><span>[Skill]</span><span>[Skill]</span></p>
+      </article>
+    </section>
+
+    <section class="stage" id="build" data-text="left">
+      <article class="card">
+        <p class="eyebrow">Floor 2 · Build</p>
+        <h2>[How it gets made.]</h2>
+        <p>[The tools, the team and how work is checked along the way.]</p>
+        <p class="chips"><span>[Skill]</span><span>[Skill]</span><span>[Skill]</span></p>
+      </article>
+    </section>
+
+    <section class="stage" id="launch" data-text="right">
+      <article class="card">
+        <p class="eyebrow">Floor 1 · Launch</p>
+        <h2>[How it reaches people.]</h2>
+        <p>[What launch day looks like, and what you watch afterwards.]</p>
+        <p class="chips"><span>[Skill]</span><span>[Skill]</span><span>[Skill]</span></p>
+      </article>
+    </section>
+
+    <section class="stage stage-final" id="contact" data-text="center">
+      <div class="card card-final">
+        <h2>[Let's talk.]</h2>
+        <p>[A friendly line about getting in touch.]</p>
+        <div class="actions"><a class="btn" href="mailto:hello@example.com">hello@example.com</a></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
