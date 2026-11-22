@@ -26,7 +26,7 @@ on them, and a new template is the way to cover a shell or a feature they do not
 
 Since 0.48: a book's pages from pictures, printed or sewn as cross-stitch (0.50); Popfold as a package, then on
 npm as `@popfold/engine` with no more submodules (0.49, 0.50); and **Popfold public** at github.com/popfold/popfold
-under the MIT licence, with the forge moved to a private repository of its own (0.50.2).
+under the MIT licence, with the forge in a repository of its own, github.com/popfold/forge (0.50.2; public since).
 
 1. **Ready to announce** (S to M, section 6): a quick start that works from nothing (`pnpm dlx @popfold/engine
    init`, tried on a clean machine), a short screen recording per template for the README, `CONTRIBUTING.md`,
@@ -209,14 +209,14 @@ Done:
 
 ## 5. AI
 
-- [x] A local vision model that plans, picks and judges props (the forge, a separate private pipeline since 0.50.2).
+- [x] A local vision model that plans, picks and judges props (the forge, its own repository since 0.50.2: github.com/popfold/forge).
 - [x] The forge makes props with TRELLIS.2, locally (0.42.0), runs a file of briefs (`--batch`, 0.43.0), and has
       a read-only viewer of what it made (`viewer.py`, with side-by-side trials; 0.45.0).
 - [x] **MCP server** `popfold mcp` on top of the command list (0.21.0).
 - [x] **An agent skill**, `skills/popfold-site/SKILL.md`: the order of work for making or changing a site. A
       fresh agent built a site from it alone; what tripped it up is fixed in the skill, the docs and the command.
-- [ ] **A model generator in Popfold** (M to L), if one belongs here at all: the forge stays a private tool for
-      now. Any public one needs swappable back ends, provenance written into each model, and the licence check below.
+- [ ] **A model generator in Popfold** (M to L), if one belongs here at all: the forge is its own public repository
+      (github.com/popfold/forge). Any public one needs swappable back ends, provenance written into each model, and the licence check below.
 - [ ] **Full mode**: in the studio track (section 4).
 - [ ] **Brief to site** (M): from a questionnaire or a resume to beats, copy, a shell and a first home.
 - [ ] Check the licence of every generating model before anything goes public (S).
