@@ -4,6 +4,8 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+## 0.50.2 (alpha), 2026-11-21
+
 - **Popfold is public**, at github.com/popfold/popfold, its history starting here. Created by Dimiter Todorov;
   creative direction by Alyssa Jacoby (Dopamine Spaces). MIT licence.
 - The forge (the AI model pipeline that was `tools/forge`) is no longer part of Popfold. `docs/models.md` and
