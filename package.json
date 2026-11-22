@@ -1,6 +1,6 @@
 {
   "name": "@popfold/engine",
-  "version": "0.50.2",
+  "version": "0.50.3",
   "description": "Alpha: scroll-driven 3D pocket homes that unfold into rooms (three.js), with a studio, a Vite plugin and a command line. Sites install it as `popfold` (npm:@popfold/engine). No backwards compatibility until 1.0.0.",
   "author": "Dimiter Todorov",
   "contributors": [
