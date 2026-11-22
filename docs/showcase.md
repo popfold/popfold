@@ -12,10 +12,16 @@ A glossy case on the page opens as you scroll: its lid lifts into a living room,
 bedroom and a studio, and a guide figure walks the rooms. The same page comes in two homes, *Playful* and
 *Refined*, each at its own address with its own stills and stories, and a switch between them.
 
+![The Playful home open on its living room, with the guide figure](showcase/dopamine-playful-room.webp)
+
 | | |
 |---|---|
+| ![The Playful home's bedroom, in a drawer](showcase/dopamine-playful-bedroom.webp) | ![The Refined home's living room](showcase/dopamine-refined-room.webp) |
+| Playful: the bedroom slides out of a drawer | Refined: the same page in another home |
 | ![The Playful home, shut](showcase/dopamine-playful.webp) | ![The Refined home, shut](showcase/dopamine-refined.webp) |
-| Playful, before the first scroll | Refined, the same page in another home |
+| Playful, before the first scroll | Refined, shut |
+
+The guide figure is a likeness of Alyssa Jacoby, shown with her agreement.
 
 What it is made of: the compact shell with its own colours and an emblem on the lid, rooms furnished from a home
 file, a guide figure, clickable stories, one page made into two homes (`popfoldFallback`'s `from`), and the page
