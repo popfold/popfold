@@ -1,7 +1,7 @@
 {
   "name": "popfold-template-storybook",
   "private": true,
-  "version": "0.50.4",
+  "version": "0.51.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port 5194 --strictPort --host 127.0.0.1",

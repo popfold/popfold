@@ -4,6 +4,8 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+## 0.51.0 (alpha), 2026-11-22
+
 - The studio works on a built site: with no dev server to write the home file, its edits (add, remove, move, look,
   links, stories, cameras) run in the browser on a copy of the file, kept in localStorage until a day after the last
   edit, with undo and redo. It shows them again when it opens, and *Download the home file* takes them away. Before,
