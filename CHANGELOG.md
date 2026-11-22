@@ -4,6 +4,7 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+- `CREDITS.md`: the people, Claude Code, every library and tool, and every AI model used for the demos.
 ## 0.50.2 (alpha), 2026-11-21
 
 - **Popfold is public**, at github.com/popfold/popfold, its history starting here. Created by Dimiter Todorov;

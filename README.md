@@ -224,6 +224,7 @@ Popfold is on npm as `@popfold/engine`. A site installs it under the name `popfo
 ## Credits
 
 Created by **Dimiter Todorov**. Creative direction: **Alyssa Jacoby** (Dopamine Spaces).
+Built with **Claude Code** (Anthropic). Every library, tool and AI model used is in [CREDITS.md](CREDITS.md).
 
 ## License
 

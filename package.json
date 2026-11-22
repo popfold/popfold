@@ -33,6 +33,7 @@
     "AGENTS.md",
     "CHANGELOG.md",
     "TODO.md",
+    "CREDITS.md",
     "LICENSE",
     "!templates/*/node_modules",
     "!templates/*/dist",
