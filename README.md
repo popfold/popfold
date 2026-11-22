@@ -5,10 +5,16 @@
 > Until then, expect breaking changes in any commit and don't depend on anything staying put.
 
 Scroll-driven 3D "pocket homes" for the web: a home that unfolds as the visitor scrolls (a compact whose lid and
-drawers open into three rooms, a modelled room whose walls fold up, or a tower whose floors light up one by one),
-with furniture that springs in, a camera that follows the story, clickable stories on pieces, links between
-sections and homes, and an optional guide figure. A home is a JSON file that Popfold Studio edits. Built on
-three.js; used as TypeScript source by Vite sites, or on any page through `<popfold-home>`.
+drawers open into three rooms, a modelled room whose walls fold up, a tower whose floors light up one by one, or a
+pop-up book whose pages turn), with furniture that springs or folds in, a camera that follows the story, clickable
+stories on pieces, links between sections and homes, pages in more than one language, and an optional guide figure.
+A home is a JSON file that Popfold Studio edits. Built on three.js; installed from npm by Vite sites, or on any page
+through `<popfold-home>`.
+
+```
+pnpm dlx @popfold/engine init my-site --template storybook   # or compact, tower, diorama
+cd my-site && pnpm install && pnpm dev
+```
 
 Guides (how it works, building a site, making models, working on it as an agent) are in `docs/`; start at
 `docs/README.md`. This page is the API reference.

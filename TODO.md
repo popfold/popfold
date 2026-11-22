@@ -5,7 +5,7 @@ Popfold is alpha: anything here may break existing sites, and that is allowed be
 
 ## Next, in order of priority
 
-As of 0.48.0. Two tracks: the engine and sites (here), and the studio (its own track, section 4, and
+As of 0.50.2. Two tracks: the engine and sites (here), and the studio (its own track, section 4, and
 `STUDIO-BACKLOG.md`). Each line is described in full in its section below.
 
 Done on the way here: every site's homes are data (`src/*.json`) and the studio edits all of it, through one
@@ -24,24 +24,31 @@ GitHub workflow is off until 1.0.0: tests run on the developer's machine (AGENTS
 Engine work is tested on the templates in this repository (`templates/`), not on the sites: the visual test runs
 on them, and a new template is the way to cover a shell or a feature they do not show.
 
-1. **A book's pages from pictures** (S to M, section 3): the martenitsa site paints each spread from an image
-   (its engine branch, `martenitsa/book-art`, is local). Fold it in as `book.pages[].art`, tested on the storybook
-   template, so a book needs no code for its art.
-2. **Lighter models** (M, section 3): `--simplify` stopped at 1.7 to 1.4 MB on the heaviest diorama. Lighter
+Since 0.48: a book's pages from pictures, printed or sewn as cross-stitch (0.50); Popfold as a package, then on
+npm as `@popfold/engine` with no more submodules (0.49, 0.50); and **Popfold public** at github.com/popfold/popfold
+under the MIT licence, with the forge moved to a private repository of its own (0.50.2).
+
+1. **Ready to announce** (S to M, section 6): a quick start that works from nothing (`pnpm dlx @popfold/engine
+   init`, tried on a clean machine), a short screen recording per template for the README, `CONTRIBUTING.md`,
+   `SECURITY.md`, issue templates, and popfold.ca's copy brought up to date (it still says there is no package).
+2. **Release from CI** (S, section 1): a workflow that runs every check on a tag and publishes to npm with
+   provenance (npm trusted publishing: no token), when the owner turns that workflow on. Until then
+   `docs/releasing.md` is the routine.
+3. **One way to deploy a site** (S to M, section 6): every template ships `wrangler.jsonc` and `deploy:site`
+   (stills, build, upload to a Cloudflare Worker), and `popfold init --domain` fills in the address; the docs say how
+   to host the same `dist/` anywhere else.
+4. **Lighter models** (M, section 3): `--simplify` stopped at 1.7 to 1.4 MB on the heaviest diorama. Lighter
    sources for the heavy parts, and squeezing positions for another 10 to 15%.
-3. **Share images per beat** (S to M, section 6): an Open Graph image for each section from its still, so a link
-   to `#forest` shows the forest. The stills exist; this is the plugin writing them out.
-4. **`popfold forge`** (M to L, section 5): the pipeline as one command. The forge now has TRELLIS.2, batches, a
-   viewer and a Rodin comparison; the licence check of every generating model comes first, before any of it ships.
-5. **Later, larger**: brief to site, a story video, more shells.
+5. **Share images per beat** (S to M, section 6): an Open Graph image for each section from its still.
+6. **Later, larger**: brief to site, a story video, more shells.
 
 **Studio track** (section 4): save from anywhere and Full mode wait on the owner's decisions. Without them, the
 small ideas in `STUDIO-BACKLOG.md` are next: a scene tree, check from the studio, stills in the studio.
 
 ## 1. Living as its own repository
 
-Popfold was split out of the monorepo it was grown in at 0.1.0. Sites hold it as a git submodule in `popfold/`,
-pinned to a tag, and use it through a pnpm workspace.
+Popfold was split out of the monorepo it was grown in at 0.1.0. Sites held it as a git submodule until 0.49; they
+install it from npm (`@popfold/engine`) since 0.50. It is public at github.com/popfold/popfold since 0.50.2.
 
 - [x] **Site CI can read Popfold.** A read-only deploy key here ("Site CI (read-only)"), with its private half in
       each site as the secret `POPFOLD_DEPLOY_KEY`. A new site needs the same secret, or its own key.
@@ -208,8 +215,8 @@ Done:
 - [x] **MCP server** `popfold mcp` on top of the command list (0.21.0).
 - [x] **An agent skill**, `skills/popfold-site/SKILL.md`: the order of work for making or changing a site. A
       fresh agent built a site from it alone; what tripped it up is fixed in the skill, the docs and the command.
-- [ ] **`popfold forge`** (M to L): the pipeline as one command, with swappable back ends (local ComfyUI or a
-      hosted service), provenance written into each model, and clean-up without Blender for the common case.
+- [ ] **A model generator in Popfold** (M to L), if one belongs here at all: the forge stays a private tool for
+      now. Any public one needs swappable back ends, provenance written into each model, and the licence check below.
 - [ ] **Full mode**: in the studio track (section 4).
 - [ ] **Brief to site** (M): from a questionnaire or a resume to beats, copy, a shell and a first home.
 - [ ] Check the licence of every generating model before anything goes public (S).
@@ -218,7 +225,8 @@ Done:
 
 - [x] A built bundle and a **web component**, `<popfold-home>` (0.40.0): `pnpm build:lib` (a release workflow attaches it, while CI is on).
 - [x] Sites take Popfold as a package from a git tag (0.49.0), and from npm as `@popfold/engine` (0.50.0).
-- [ ] Publish to npm from CI on a release tag (S), when the owner turns that workflow on.
+- [ ] **Release from CI** (S): every check on a tag, then `npm publish --provenance` through npm trusted
+      publishing, when the owner turns that workflow on.
 - [x] **A site in more than one language** (0.47.0): a page made `from` another with `lang` and a translation file;
       `hreflang`, a `data-pf-lang` switcher, `t()` in the browser, and untranslated words in `popfold check` (0.48.0).
 - [ ] Languages, later: the studio's own words, beat names and page labels per language, and a home file's
