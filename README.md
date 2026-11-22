@@ -227,6 +227,12 @@ Popfold is on npm as `@popfold/engine`. A site installs it under the name `popfo
 Created by **Dimiter Todorov**. Creative direction: **Alyssa Jacoby** (Dopamine Spaces).
 Built with **Claude Code** (Anthropic). Every library, tool and AI model used is in [CREDITS.md](CREDITS.md).
 
+<img src="https://raw.githubusercontent.com/popfold/forge/main/docs/forge-icon-light.svg" alt="" width="32" height="32" align="left" />
+
+The props and art of the sites above were made with **[the forge](https://github.com/popfold/forge)**, Popfold's
+open-source model pipeline: a picture from FLUX or Chroma, a mesh from TRELLIS.2 or Hunyuan3D, Blender to finish it,
+all on one local GPU.
+
 ## License
 
 MIT (see `LICENSE`), copyright Dimiter Todorov.

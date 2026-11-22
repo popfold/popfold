@@ -35,7 +35,8 @@
 ## AI models used for the demos' models and art
 
 None of these models, nor anything they made, is in this repository: the templates' pieces are built in code and
-Blender. They made props, pictures and art for the sites built with Popfold, locally through
+Blender. They made props, pictures and art for the sites built with Popfold, mostly through
+[the forge](https://github.com/popfold/forge) (Popfold's open-source model pipeline), locally through
 [ComfyUI](https://www.comfy.org) and [Ollama](https://ollama.com), or through hosted services. Check each one's
 licence before publishing or selling what it makes.
 

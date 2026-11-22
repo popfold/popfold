@@ -4,6 +4,8 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+- The README, `docs/models.md`, `docs/agent-tools.md` and `CREDITS.md` link to the forge, Popfold's model pipeline,
+  now public at github.com/popfold/forge.
 ## 0.50.4 (alpha), 2026-11-21
 
 - The badges wear Popfold's own P instead of a heart: `made-with-popfold-p-{light,dark}.svg` replaces the heart pill,

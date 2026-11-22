@@ -3,8 +3,9 @@
 Everything Popfold shows is either built in code or loaded from a `.glb` file. This page covers the file
 convention and every way we have made models so far, with the exact commands.
 
-The scripts are in `tools/blender/` (build, convert and review models). Popfold does not ship a model generator:
-any tool that writes a `.glb` works. Paths here are relative to the Popfold folder.
+The scripts are in `tools/blender/` (build, convert and review models). Popfold itself does not ship a model
+generator: any tool that writes a `.glb` works. The one Popfold's own sites use is **the forge**, open source at
+[github.com/popfold/forge](https://github.com/popfold/forge): it runs the chain below on one local GPU. Paths here are relative to the Popfold folder.
 
 ## The prop convention
 

@@ -140,7 +140,8 @@ JSON-LD structured data, and the simple page in the HTML itself. Check `dist/llm
 ## Generating models
 
 Popfold does not ship a generator; `docs/models.md` describes the chain that works (picture, cut-out, image to 3D,
-Blender clean-up, review sheet). Rules for an agent generating models for a site:
+Blender clean-up, review sheet), and [the forge](https://github.com/popfold/forge) is the open-source pipeline that
+runs it for Popfold's own sites (its README is the manual). Rules for an agent generating models for a site:
 
 - **Start a local server (ComfyUI) only if it is not running,** and stop only the one you started. Check the port.
 - **One GPU job at a time.** Image and 3D models rarely fit in memory together on a 12 GB card.
