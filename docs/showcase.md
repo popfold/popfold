@@ -84,9 +84,9 @@ are in `assets/badges/` (drawn by `tools/badges.mjs`):
 
 | | Light | Dark |
 |---|---|---|
-| A heart | ![](../assets/badges/made-with-popfold-heart-light.svg) | ![](../assets/badges/made-with-popfold-heart-dark.svg) |
+| Popfold's P | ![](../assets/badges/made-with-popfold-p-light.svg) | ![](../assets/badges/made-with-popfold-p-dark.svg) |
 | A folded corner | ![](../assets/badges/made-with-popfold-fold-light.svg) | ![](../assets/badges/made-with-popfold-fold-dark.svg) |
-| The mark alone | ![](../assets/badges/made-with-popfold-mark-light.svg) | ![](../assets/badges/made-with-popfold-mark-dark.svg) |
+| The P alone | ![](../assets/badges/made-with-popfold-mark-light.svg) | ![](../assets/badges/made-with-popfold-mark-dark.svg) |
 
 On a page, with the dark version when the reader's system is dark (the files come with the package, so a site can
 also copy them from `node_modules/popfold/assets/badges/` into `public/`):
@@ -94,8 +94,8 @@ also copy them from `node_modules/popfold/assets/badges/` into `public/`):
 ```html
 <a href="https://popfold.ca" class="made-with-popfold">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@popfold/engine/assets/badges/made-with-popfold-heart-dark.svg" />
-    <img src="https://unpkg.com/@popfold/engine/assets/badges/made-with-popfold-heart-light.svg" alt="Made with Popfold" width="196" height="36" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@popfold/engine/assets/badges/made-with-popfold-p-dark.svg" />
+    <img src="https://unpkg.com/@popfold/engine/assets/badges/made-with-popfold-p-light.svg" alt="Made with Popfold" width="196" height="36" />
   </picture>
 </a>
 ```
@@ -103,7 +103,7 @@ also copy them from `node_modules/popfold/assets/badges/` into `public/`):
 In a README:
 
 ```md
-[![Made with Popfold](https://unpkg.com/@popfold/engine/assets/badges/made-with-popfold-heart-light.svg)](https://popfold.ca)
+[![Made with Popfold](https://unpkg.com/@popfold/engine/assets/badges/made-with-popfold-p-light.svg)](https://popfold.ca)
 ```
 
-The mark alone is 44 by 44, for a corner of a page; swap `heart` for `fold` or `mark` in the file names.
+The mark alone is 44 by 44, for a corner of a page; swap `p` for `fold` or `mark` in the file names.
