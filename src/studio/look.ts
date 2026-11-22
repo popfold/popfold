@@ -3,6 +3,7 @@
 // home is built again from the file, without a reload). A home made in code keeps its look in code: its colours
 // are shown and can be tried here, built again in place, and the changes copied as code for its recipe.
 import type { HomeRecipe } from '../types';
+import { homeRequest } from './home-edits';
 
 type Json = Record<string, unknown>;
 const PATTERNS = ['checker', 'stripes', 'dots', 'waves', 'terrazzo'];
@@ -100,8 +101,7 @@ export function createLookEditor(getHome: () => string, recipeOf: (id: string) =
     say('Saving…');
     try {
       const body = { commands: [{ name: 'look', args: change }], quiet: true };
-      const r = await fetch(`/__popfold/home/${getHome()}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-      const res = await r.json() as { ok: boolean; why?: string; file?: string; home?: Json };
+      const res = await homeRequest(getHome(), body);
       if (!res.ok) throw new Error(res.why ?? 'not saved');
       await show.file(res.home); // (fileWillShow follows from it)
       say(`Saved in ${res.file}.`);
@@ -250,7 +250,7 @@ export function createLookEditor(getHome: () => string, recipeOf: (id: string) =
       if (recipe?.remake) {
         // a home kept in a file: its look is edited in the file
         try {
-          const res = await fetch(`/__popfold/home/${getHome()}`).then((r) => r.json()) as { ok: boolean; home?: Json };
+          const res = await homeRequest(getHome());
           if (res.ok) file = res.home ?? null;
         } catch { /* a built studio has no dev server to ask */ }
       } else if (recipe) {

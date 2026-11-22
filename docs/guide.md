@@ -555,6 +555,16 @@ taken back: **Ctrl+Z** undoes, **Ctrl+Shift+Z** redoes, and the two arrows besid
 With nothing unsaved left to undo, the same keys step back through the saves of the home file (every edit above,
 and an agent's through `popfold mcp`), for as long as the dev server runs. Older history is git's.
 
+### The studio on a built site
+
+A built site has no dev server to write the home file, but its studio still edits: every change above runs in the
+browser on a copy of the home file, kept in this browser's localStorage until a day after the last edit, with its
+own undo and redo. Opening the studio again in that time shows the home as you left it, with a note that says until
+when. *Download the home file* saves the edited file (`<home>.home.json`) to put in the site's `src/`; *Start over*
+forgets the edits. The site's own page never reads them: it shows the home it was built with. Only a home kept in a
+file can be edited this way, and a change to a page's sections (adding, removing or moving a beat) still needs the
+dev server. Unsaved moves are kept as a draft for a day too.
+
 Every edit that writes the home file is one of a short **command list** (`place`, `add`, `remove`, `story`,
 `camera`, `beat`, `add-beat`, `remove-beat`, `move-beat`, `look`, `places`, `link`): the studio sends them, and so can an agent (`popfold mcp`, in
 [agent-tools.md](agent-tools.md)) or a script.

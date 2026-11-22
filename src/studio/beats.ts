@@ -4,6 +4,7 @@
 // the new story in place: the file it gets back (from an edit, an undo or a redo) gives the stops and the scene.
 import type { BeatData } from '../keyframes';
 import type { HomeRecipe } from '../types';
+import { homeRequest } from './home-edits';
 
 type Json = Record<string, unknown>;
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -28,8 +29,7 @@ export function createBeatEditor(o: {
   async function send(command: { name: string; args: Json }, stage: number, done: string) {
     say('Saving…');
     try {
-      const r = await fetch(`/__popfold/home/${o.getHome()}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ commands: [command], quiet: true }) });
-      const res = await r.json() as { ok: boolean; why?: string; file?: string; page?: string; home?: Json };
+      const res = await homeRequest(o.getHome(), { commands: [command], quiet: true });
       if (!res.ok) throw new Error(res.why ?? 'not saved');
       next = stage;
       await o.showFile(res.home);
@@ -79,7 +79,7 @@ export function createBeatEditor(o: {
       say('');
       if (o.recipeOf(o.getHome())?.remake) {
         try {
-          const res = await fetch(`/__popfold/home/${o.getHome()}`).then((r) => r.json()) as { ok: boolean; home?: Json };
+          const res = await homeRequest(o.getHome());
           if (res.ok && Array.isArray(res.home?.beats) && res.home.beats.length) beats = res.home.beats as BeatData[];
         } catch { /* a built studio has no dev server to ask */ }
       }

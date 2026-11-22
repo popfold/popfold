@@ -4,6 +4,7 @@
 import { BUILT_IN_EFFECTS } from '../effects-pass';
 import { linkKey, type Transition } from '../transitions';
 import type { HomeRecipe } from '../types';
+import { homeRequest } from './home-edits';
 
 type Json = Record<string, unknown>;
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -38,8 +39,7 @@ export function createLinkEditor(o: LinkEditorOptions) {
     say('Saving…');
     try {
       const body = { commands: [{ name: 'link', args }], quiet: true };
-      const r = await fetch(`/__popfold/home/${o.getHome()}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-      const res = await r.json() as { ok: boolean; why?: string; file?: string; home?: Json };
+      const res = await homeRequest(o.getHome(), body);
       if (!res.ok) throw new Error(res.why ?? 'not saved');
       await o.showFile(res.home); // (fileWillShow and fileShown follow from it)
       say(`${done} in ${res.file}.`);
@@ -168,7 +168,7 @@ export function createLinkEditor(o: LinkEditorOptions) {
       open = '';
       if (o.recipeOf(o.getHome())?.remake) {
         try {
-          const res = await fetch(`/__popfold/home/${o.getHome()}`).then((r) => r.json()) as { ok: boolean; home?: Json };
+          const res = await homeRequest(o.getHome());
           if (res.ok) file = res.home ?? null;
         } catch { /* a built studio has no dev server to ask */ }
       }

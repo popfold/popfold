@@ -63,7 +63,7 @@
     "build:lib": "vite build --config vite.lib.config.ts",
     "build:pkg": "node --no-warnings tools/build-pkg.mjs",
     "release": "node tools/release.mjs",
-    "test": "node --no-warnings tools/build-pkg.mjs --check && node --test \"test/*.test.ts\"",
+    "test": "node --no-warnings tools/build-pkg.mjs --check && node --import ./test/resolve-ts.mjs --test \"test/*.test.ts\"",
     "test:browser": "node --test --test-concurrency=1 \"test-browser/*.test.ts\"",
     "lint": "biome lint"
   },

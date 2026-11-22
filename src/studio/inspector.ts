@@ -9,6 +9,9 @@ import type { HomeRecipe, PropStory } from '../types';
 import type { HomeCommand } from '../vite-plugin';
 import { shellOf } from '../shell';
 import { BUILT_IN_KINDS } from '../pieces';
+import { POPUP_KINDS } from '../book';
+import { formatHome } from '../home-commands';
+import { dropLastEdit, editsInBrowser, forgetEdits, homeRequest, KEEP_MS, KEPT_EVENT, keptEdits } from './home-edits';
 
 type Engine = Awaited<ReturnType<typeof import('../engine').startScene>>;
 
@@ -261,8 +264,7 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
   /** run commands on the home's file (the same list `popfold mcp` offers an agent), then show the result */
   const homeFile = async (commands: HomeCommand[] | { undo: true } | { redo: true }) => {
     const body = { ...(Array.isArray(commands) ? { commands } : commands), quiet: true }; // this page shows it: no reload
-    const r = await fetch(`/__popfold/home/${getHome()}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-    const res = await r.json() as { ok: boolean; why?: string; file?: string; home?: unknown; names?: string[] };
+    const res = await homeRequest(getHome(), body);
     if (!res.ok) throw new Error(res.why ?? 'the home file was not written');
     await showFile(res.home);
     return res.file ?? 'the home file';
@@ -275,7 +277,18 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
     const id = getHome(), recipe = recipeOf(id);
     if (!json || !recipe?.remake) { await reloadWhenReady(); return; }
     for (const w of watchers) w.fileWillShow(json);
-    await showRecipe(recipe.remake(json));
+    try {
+      await showRecipe(recipe.remake(json));
+    } catch (err) {
+      // a built studio keeps an edit before the home is built from it: one that does not build is taken back, so the
+      // studio does not open on a home it cannot show
+      if (editsInBrowser() && keptEdits(id)) {
+        const back = dropLastEdit(id);
+        if (back) await showRecipe(recipe.remake(back)).catch(() => {});
+        showKeptNote(id);
+      }
+      throw err;
+    }
     for (const w of watchers) w.fileShown();
   }
   /**
@@ -359,7 +372,10 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
 
   // ----- what a listed piece is: another kind in its place, keeping where it stands and its story -----
   const kindSel = $<HTMLSelectElement>('pkind');
-  const kindsOf = (recipe: HomeRecipe | undefined) => recipe?.pieces ? [...new Set([...Object.keys(recipe.kinds ?? {}), ...recipe.props, ...BUILT_IN_KINDS])] : [];
+  /** the kinds a home can build: a book's are its pop-ups and the site's own kinds, the rest also take models and built-ins */
+  const kindsOf = (recipe: HomeRecipe | undefined) => !recipe?.pieces ? []
+    : recipe.book ? [...new Set([...Object.keys(recipe.kinds ?? {}), ...POPUP_KINDS])]
+    : [...new Set([...Object.keys(recipe.kinds ?? {}), ...recipe.props, ...BUILT_IN_KINDS])];
   function showKind() {
     const spec = selected?.listed?.spec;
     const kinds = kindsOf(recipeOf(getHome()));
@@ -389,6 +405,8 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
   }
   /** add a piece to the home file and select it, so it can be placed at once. Says how it went, in words */
   async function addPiece(id: string, room: string, kind: string, wall: boolean): Promise<string> {
+    const kinds = kindsOf(recipeOf(getHome()));
+    if (!kinds.includes(kind)) return (status.textContent = `Not added: this home cannot build a ${kind.replace(/^builtin\//, '')}. It takes ${kinds.join(', ') || 'no pieces from here'}.`);
     try {
       const file = await homeFile([{ name: 'add', args: { id, room, kind, wall } }]);
       status.textContent = `Added ${id} to ${file}.`;
@@ -421,7 +439,6 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
     const id = getHome();
     status.textContent = 'Saving…';
     try {
-      const post = (path: string, body: string) => fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
       // listed pieces that moved, turned or changed size: their new place belongs in the home's own file
       const moved = editables().flatMap((e) => { const change = placementChange(e, entryScale(e)); return change && e.listed ? [{ e, spec: e.listed.spec, change }] : []; });
       let wrote = '';
@@ -437,8 +454,7 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
       for (const { e } of moved) delete rest[e.key];
       const commands: HomeCommand[] = moved.map(({ spec, change }) => ({ name: 'place', args: { id: spec.id, room: spec.room, wall: !!spec.wall, change } }));
       commands.push({ name: 'places', args: { places: rest } });
-      const r = await post(`/__popfold/home/${id}`, JSON.stringify({ commands, quiet: true }));
-      const res = await r.json() as { ok: boolean; why?: string; file?: string };
+      const res = await homeRequest(id, { commands, quiet: true });
       if (!res.ok) throw new Error(res.why ?? 'the home file was not written');
       // where each piece stands now is where it belongs: its entry says so, and so does this page
       for (const { e, spec, change } of moved) {
@@ -454,7 +470,9 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
       writeDraft(id); // now matches the files, so this clears it
       history[id] = { past: [], future: [], now: JSON.stringify(layout()) }; showHistory();
       refreshList();
-      status.textContent = `Saved ${wrote}. The site uses it on the next reload.`;
+      status.textContent = editsInBrowser()
+        ? `Saved ${wrote}. Download the home file to put it in the site.`
+        : `Saved ${wrote}. The site uses it on the next reload.`;
     } catch (err) {
       download();
       status.textContent = `Couldn't save here (${(err as Error).message.slice(0, 80)}). Downloaded ${id}-places.json instead: its entries are the home file's places (a moved listed piece is in it too, by key).`;
@@ -472,6 +490,7 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
   function readDraft(id: string): Draft | null {
     try {
       const d = JSON.parse(localStorage.getItem(draftKey(id)) ?? 'null') as Draft | null;
+      if (d && typeof d.at === 'number' && Date.now() - d.at > KEEP_MS) { localStorage.removeItem(draftKey(id)); return null; }
       return d && typeof d.layout === 'object' && !Array.isArray(d.layout) && typeof d.at === 'number' ? d : null;
     } catch { return null; }
   }
@@ -522,6 +541,55 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
     status.before(offer);
   }
 
+  // ----- a built site: edits are kept in this browser for a day (home-edits.ts). Shown again when the studio opens,
+  // with the way to take the edited file away, or to go back to the one the site was built with -----
+  let keptBox: HTMLElement | null = null;
+  function showKeptNote(id: string) {
+    const k = keptEdits(id);
+    keptBox?.remove(); keptBox = null;
+    if (!k || getHome() !== id) return;
+    const until = new Date(k.at + KEEP_MS).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+    keptBox = document.createElement('div');
+    keptBox.className = 'draft-offer';
+    const text = Object.assign(document.createElement('p'), {
+      textContent: `Your edits to this home are kept in this browser until ${until} (a day after the last one). This site was built without them: download the home file to put them in it.`,
+    });
+    const btn = (label: string, fn: () => void) => {
+      const b = Object.assign(document.createElement('button'), { className: 'chip', type: 'button', textContent: label });
+      b.addEventListener('click', fn);
+      return b;
+    };
+    const actions = document.createElement('div');
+    actions.className = 'layout-actions';
+    actions.append(
+      btn('Download the home file', () => {
+        const now = keptEdits(id);
+        if (!now) return;
+        const a = Object.assign(document.createElement('a'), {
+          href: URL.createObjectURL(new Blob([formatHome(now.home)], { type: 'application/json' })),
+          download: `${id}.home.json`,
+        });
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      }),
+      btn('Start over', () => {
+        if (!confirm('Forget your edits to this home? The studio goes back to the home this site was built with.')) return;
+        forgetEdits(id);
+        location.reload();
+      }),
+    );
+    keptBox.append(text, actions);
+    status.before(keptBox);
+  }
+  /** a built studio opening a home it has edits for: show the home as they left it */
+  async function showKept(id: string) {
+    const k = keptEdits(id);
+    if (!k || !recipeOf(id)?.remake) return;
+    await showFile(k.home);
+    showKeptNote(id);
+  }
+  if (editsInBrowser()) addEventListener(KEPT_EVENT, (e) => showKeptNote((e as CustomEvent<string>).detail));
+
   return {
     /** the key of the piece selected, if one is */
     get selectedKey() { return selected?.key; },
@@ -537,6 +605,8 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
       applyPlaces(editables(), layout());
       select(null); refreshList(); refreshAdder(); updateBar(); showHistory(); status.textContent = '';
       offerDraft(getHome());
+      keptBox?.remove(); keptBox = null;
+      if (editsInBrowser()) void showKept(getHome());
     },
   };
 }

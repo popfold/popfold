@@ -201,6 +201,8 @@ export interface HomeRecipe {
    * uses it to show an edit to the file without reloading the page.
    */
   remake?: (json: unknown) => HomeRecipe;
+  /** the file this home was made from, as it was read (set by homeFromFile()): a built studio edits a copy of it */
+  file?: unknown;
   /** a tall building of stacked floors, each its own story zone (see tower.ts) */
   tower?: TowerSpec;
   /** a pop-up storybook: pages that turn, each with a scene that folds up (see book.ts) */

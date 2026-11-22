@@ -67,6 +67,7 @@ export function homeFromFile(json: unknown, code: HomeCode = {}): { recipe: Home
     ...(stories || rest.stories ? { stories: { ...rest.stories, ...stories } } : {}),
     places: places ?? {}, // (the studio saves these into the file too)
     remake: (next) => homeFromFile(next, code).recipe,
+    file: json,
   };
   return { recipe, beats: beatsOf({ beats }), transitions: transitions ?? [] };
 }

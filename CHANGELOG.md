@@ -4,6 +4,16 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+- The studio works on a built site: with no dev server to write the home file, its edits (add, remove, move, look,
+  links, stories, cameras) run in the browser on a copy of the file, kept in localStorage until a day after the last
+  edit, with undo and redo. It shows them again when it opens, and *Download the home file* takes them away. Before,
+  every edit there failed with "JSON.parse: unexpected end of data". Unsaved moves (drafts) are also forgotten after
+  a day.
+- A book's studio offers only what a book can build: its pop-ups and the site's own kinds. The object view no longer
+  offers built-in furniture or model files for one, and an add the home cannot build is refused before anything is
+  written (before, the dev server wrote it into the home file and the home stopped building).
+- The home file's commands moved from `vite-plugin.ts` into `src/home-commands.ts` (still exported from
+  `popfold/vite`); `pnpm build:pkg` makes `lib/home-commands.js` beside `lib/vite-plugin.js`.
 - The README, `docs/models.md`, `docs/agent-tools.md` and `CREDITS.md` link to the forge, Popfold's model pipeline,
   now public at github.com/popfold/forge.
 ## 0.50.4 (alpha), 2026-11-21

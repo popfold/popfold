@@ -17,6 +17,7 @@ import { createLinkEditor } from './links';
 import { createLookEditor } from './look';
 import { createLibrary } from './library';
 import { studioMarkup } from './markup';
+import { homeRequest, useHomeFiles } from './home-edits';
 
 export interface StudioOptions {
   /** every home on the bench */
@@ -192,6 +193,9 @@ async function boot() {
   }
   // ----- props inspector -----
   const recipeOf = (id: string) => HOMES.find((h) => h.id === id);
+  // a built studio edits a copy of each home's file as the site was built with it (taken before any edit)
+  const builtFiles = new Map(HOMES.map((h) => [h.id, h.file]));
+  useHomeFiles((id) => builtFiles.get(id));
   const showFile = (json: unknown) => inspector!.showFile(json);
   // a diorama's materials, as the home on show has them: every named one its art does not paint, with its colour now
   const modelMaterials = () => {
@@ -369,8 +373,7 @@ async function boot() {
     foldSet.disabled = true;
     foldSet.textContent = 'Saving…';
     try {
-      const r = await fetch(`/__popfold/home/${ui.home}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ commands: [{ name: 'beat', args: { id: beat.id, set, zones } }], quiet: true }) });
-      const res = await r.json() as { ok: boolean; why?: string; file?: string };
+      const res = await homeRequest(ui.home, { commands: [{ name: 'beat', args: { id: beat.id, set, zones } }], quiet: true });
       if (!res.ok) throw new Error(res.why ?? 'not saved');
       for (const { f, input } of foldInputs) if (!(f.key === 'glow' && lampAlwaysOn())) beat.key[f.key] = Number(input.value);
       manual.checked = false; applyManual(); // back to the story, which now plays these values here
@@ -422,8 +425,7 @@ async function boot() {
     camSaving = true;
     $('cam-set').textContent = 'Saving…';
     try {
-      const r = await fetch(`/__popfold/home/${ui.home}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ commands: [{ name: 'camera', args: { id: beat.id, ...view } }], quiet: true }) });
-      const res = await r.json() as { ok: boolean; why?: string; file?: string };
+      const res = await homeRequest(ui.home, { commands: [{ name: 'camera', args: { id: beat.id, ...view } }], quiet: true });
       if (!res.ok) throw new Error(res.why ?? 'not saved');
       Object.assign(beat.key, { cx: view.camera[0], cy: view.camera[1], cz: view.camera[2], tx: view.lookAt[0], ty: view.lookAt[1], tz: view.lookAt[2] });
       // show the story as it now plays (a click on the Story button, so the buttons agree with the view)

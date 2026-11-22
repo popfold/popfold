@@ -66,6 +66,13 @@ test('nothing is added to a diorama from the list', () => {
   assert.equal(libraryOf([room], 'room').some((e) => e.usable), false);
 });
 
+test('a book takes its own kinds from the list, not furniture or model files', () => {
+  const book = { id: 'book', props: ['lamp'], propDir: 'models/props', kinds: { tree: build }, book: { pages: [] } } as unknown as HomeRecipe;
+  const list = libraryOf([book], 'book');
+  assert.deepEqual(list.filter((e) => e.usable).map((e) => e.kind), ['tree']);
+  assert.match(list.find((e) => e.kind === BUILT_IN_KINDS[0])?.why ?? '', /pop-ups/);
+});
+
 test('a home file may name a built-in kind, and only one that exists', () => {
   const home = (kind: string) => ({ id: 'h', name: 'H', pieces: [{ id: 'p', room: 'center', kind, at: [0, 0] }] });
   assert.doesNotThrow(() => readHome(home('builtin/sofa')));

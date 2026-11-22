@@ -471,7 +471,7 @@ export interface LibraryEntry {
   used: { home: string; room: string; count: number }[];
 }
 
-type Home = Pick<HomeRecipe, 'id' | 'pieces' | 'kinds' | 'props' | 'propDir' | 'sharedDir' | 'diorama'>;
+type Home = Pick<HomeRecipe, 'id' | 'pieces' | 'kinds' | 'props' | 'propDir' | 'sharedDir' | 'diorama' | 'book'>;
 
 /** the file a model kind loads, as engine.ts finds it: a name with a folder comes from the shared folder */
 export const modelPath = (home: Pick<HomeRecipe, 'propDir' | 'sharedDir'>, name: string) => `${name.includes('/') ? (home.sharedDir ?? 'models/props') : home.propDir}/${name}.glb`;
@@ -517,5 +517,7 @@ export function libraryOf(homes: Home[], shown: string, files: ModelFile[] = [])
   for (const k of sorted(new Set((home.pieces ?? []).map((p) => p.kind)))) add({ kind: k, from: 'site', usable: false, why: 'This home has no way to build it.' });
   // a diorama's pieces are its model's parts: nothing is added to one from here
   if (home.diorama) for (const e of out) if (e.usable) { e.usable = false; e.why = "A diorama's pieces are its model's parts."; }
+  // a book's pieces are paper pop-ups and the site's own kinds: furniture and model files do not go in one
+  if (home.book) for (const e of out) if (e.usable && e.from !== 'site') { e.usable = false; e.why = "A book's pieces are pop-ups (card, stand, vfold, box, fan) and the site's own kinds."; }
   return out;
 }

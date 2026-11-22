@@ -98,9 +98,10 @@ change a pure function, add or update its test.
 | `schema/home.schema.json` | The JSON Schema of a site's home file (`src/home.json`). Keep it in step with `readHome()`; a test compares them |
 | `src/props.ts`, `builtins.ts`, `textures.ts`, `flow.ts`, `avatar.ts`, `effects.ts` | Built-in pieces, and the ones a home file can name (`builtin/sofa`); canvas textures, glowing pipes, the built-in figure, sparkles |
 | `src/element.ts`, `lib.ts`, `vite.lib.config.ts` | `<popfold-home>` and the library bundle (`pnpm build:lib`): Popfold on a page with no build step |
+| `src/home-commands.ts` | Every edit a home file takes (the command list): run by the dev server, `popfold mcp` and the studio on a built site |
 | `src/fallback.ts`, `vite-plugin.ts`, `text.ts` | The page without 3D (browser side, build side), a page in another language (`translateHtml()`, and `t()` in the browser) and the dev save endpoints |
 | `src/debug-hook.ts`, `debug.ts` | The debug panel: the few lines that open it, and the panel itself, fetched only then |
-| `src/studio/` | Popfold Studio: `mountStudio()`, the props inspector, markup, styles |
+| `src/studio/` | Popfold Studio: `mountStudio()`, the props inspector, markup, styles; `home-edits.ts`: where its edits go (the dev server, or this browser on a built site) |
 | `bin/popfold.mjs`, `bin/mcp.mjs` | The `popfold` command: `init`, `build`, `stills`, `check`, `describe`, `shot`, `optimize`, `split-room`, `update`, `mcp` (the MCP server is `bin/mcp.mjs`) |
 | `tools/release.mjs` | `pnpm release <version>`: cuts a release locally |
 | `assets/compact.glb`, `compact-crisp.glb` | The compact's two cases, built by `tools/blender/build_compact.py` |
@@ -169,8 +170,12 @@ __popfold.scene.describe().pieces
   builds every material again. Keep lights on the home's root or in the scene and move them (`docs/guide.md`,
   "A smooth first scroll").
 - **`gen()` returns `null` when a file is missing.** Always write `gen('x', 1) ?? P.something()` or guard it.
-- **`src/vite-plugin.ts` imports nothing of Popfold's at run time** (types only). Node loads it as it is when it
-  reads a site's `vite.config.ts`, and a plain `import './x'` fails there.
+- **`src/vite-plugin.ts` imports only `./home-commands` of Popfold's at run time** (the rest is types). Node loads
+  it as it is when it reads a site's `vite.config.ts`: `pnpm build:pkg` makes both into `lib/` and names that one
+  import with its `.js`. Keep `home-commands.ts` plain data in, plain data out, with nothing of Node's: the studio
+  runs the same commands in the browser on a built site.
+- **Node's test runner needs `--import ./test/resolve-ts.mjs`** (`pnpm test` passes it) to load `src/` files, which
+  import each other without an extension.
 - **`vite.config.ts` must not import 3D code.** It runs in Node. Import the stories from a plain data file, not
   from the recipe.
 - **Text drawn on canvas textures needs the web fonts loaded first.** See the `document.fonts.load` calls in the
@@ -179,7 +184,10 @@ __popfold.scene.describe().pieces
   element. A story whose section is missing stops the build (the dev server only warns).
 - **Clicks reach the home only through the empty part of a `.stage` section.** Anything else on the page counts
   as page content, unless the site passes `isOverUi`.
-- **Saving from the studio only works on `127.0.0.1` or `localhost`.** Through a tunnel it downloads the JSON.
+- **The studio writes the home file only on the dev server, opened on `127.0.0.1` or `localhost`.** Through a tunnel
+  it refuses. On a built site (`vite build`, a deployed studio) its edits run in the browser on a copy of the home
+  file, kept in localStorage for a day after the last edit (`src/studio/home-edits.ts`), and *Download the home
+  file* takes them away.
 - **`popfold stills` needs a local Chrome or Edge** and uses the GPU. Without a GPU it works but takes minutes.
 - **Windows file locks** can fail a still capture once. The command retries once by itself.
 - **A site loads the Vite plugin from `lib/vite-plugin.js`**, made from `src/vite-plugin.ts` by `pnpm build:pkg`
