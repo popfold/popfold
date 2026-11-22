@@ -6,7 +6,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const out = resolve(dirname(fileURLToPath(import.meta.url)), '../assets/badges');
-const INK = '#1B1A2E', PAPER = '#FAF7F0', CORAL = '#FF5C4D', BLUE = '#2F4BFF', CLOUD = '#E6E3F0';
+const INK = '#1B1A2E', PAPER = '#FAF7F0', BLUE = '#2F4BFF', CLOUD = '#E6E3F0';
 const FONT = `font-family="'Bricolage Grotesque','DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif"`;
 const theme = { light: { bg: PAPER, line: INK, text: INK, fold: BLUE }, dark: { bg: INK, line: CLOUD, text: PAPER, fold: CLOUD } };
 // Popfold's P: a blue letter folded back along its bowl, with a coral corner (popfold.ca's own mark); its stem is ink
