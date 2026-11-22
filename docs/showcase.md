@@ -1,11 +1,31 @@
 # Made with Popfold
 
-A site built on Popfold, shown with the owner's permission, with what each part of it uses. The pictures are
-the site's own stills: the ones its page without 3D shows.
+Sites built on Popfold, shown with their owners' permission. The pictures are the sites' own stills: the ones their
+pages without 3D show.
 
-## Dimiter Todorov: a résumé as a building
+## Dopamine Spaces
 
-**https://dimiter.popfold.ca** · a tower home
+**https://dopamine.popfold.ca** · a compact home · creative direction: Alyssa Jacoby
+
+Popfold's first site, and the one it was made for: Dopamine Spaces, dopamine-driven interior decorating in Toronto.
+A glossy case on the page opens as you scroll: its lid lifts into a living room, its drawers slide out into a
+bedroom and a studio, and a guide figure walks the rooms. The same page comes in two homes, *Playful* and
+*Refined*, each at its own address with its own stills and stories, and a switch between them.
+
+| | |
+|---|---|
+| ![The Playful home, shut](showcase/dopamine-playful.webp) | ![The Refined home, shut](showcase/dopamine-refined.webp) |
+| Playful, before the first scroll | Refined, the same page in another home |
+
+What it is made of: the compact shell with its own colours and an emblem on the lid, rooms furnished from a home
+file, a guide figure, clickable stories, one page made into two homes (`popfoldFallback`'s `from`), and the page
+without 3D built from the same file. Its source is private.
+
+## Demos, with their source
+
+### A résumé as a building
+
+**https://todorov.ca** · a tower home · source: [dimitertodorov/personal-site](https://github.com/dimitertodorov/personal-site)
 
 A résumé told as a building: one neon floor per skill set, and an integration pipeline running down the building's
 spine. Scrolling the page rides up the tower floor by floor, each floor opening and lighting up as its section of
@@ -31,6 +51,25 @@ What it is made of:
 
 Started from the tower template (`popfold init --template tower`), which shows the same shape in a smaller
 building.
+
+### The First Martenitsa: a pop-up storybook
+
+**https://storybook.popfold.ca** · a book home · source: [popfold/martenitsa](https://github.com/popfold/martenitsa)
+
+A Bulgarian legend told as a pop-up book, in English and in Bulgarian. The book opens on its closed cover, and each
+page's picture is sewn as cross-stitch while the page turns.
+
+![A spread of the storybook, its picture in cross-stitch](showcase/martenitsa-2.webp)
+
+What it is made of: the book shell with `"closed": true`, page pictures with `"stitch"`, a second page in Bulgarian
+(`lang` and a translation file) with Cyrillic fonts, and the language links (`data-pf-lang`).
+
+### Popfold's own site
+
+**https://popfold.ca** · a compact home and a tower · source: [popfold/popfold-site](https://github.com/popfold/popfold-site)
+
+Popfold's landing page (a case built entirely in code), its architecture page (a tower, one floor per layer of
+Popfold) and the docs.
 
 ## Show that a site is made with Popfold
 

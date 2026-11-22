@@ -21,10 +21,11 @@ Guides (how it works, building a site, making models, working on it as an agent)
 
 ## Made with Popfold
 
-[![A résumé as a building, made with Popfold](docs/showcase/personal-tower.webp)](docs/showcase.md)
+[![Dopamine Spaces, made with Popfold](docs/showcase/dopamine-playful.webp)](docs/showcase.md)
 
-A résumé told as a tower, one neon floor per skill set: https://dimiter.popfold.ca. More in
-[docs/showcase.md](docs/showcase.md).
+**Dopamine Spaces**, Popfold's first site: https://dopamine.popfold.ca. Demos with their source: a résumé as a
+tower (https://todorov.ca), a pop-up storybook (https://storybook.popfold.ca), and popfold.ca itself. All of them
+are in [docs/showcase.md](docs/showcase.md).
 
 ## Use it in a site
 
