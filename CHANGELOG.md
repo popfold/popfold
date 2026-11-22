@@ -4,6 +4,8 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+- **"Made with Popfold" badges**: a heart, a folded corner and the mark alone, light and dark, in `assets/badges/`
+  (`tools/badges.mjs`), with the snippet in `docs/showcase.md`.
 - `CREDITS.md`: the people, Claude Code, every library and tool, and every AI model used for the demos.
 ## 0.50.2 (alpha), 2026-11-21
 
