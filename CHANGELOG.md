@@ -4,6 +4,8 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+## 0.50.4 (alpha), 2026-11-21
+
 - The badges wear Popfold's own P instead of a heart: `made-with-popfold-p-{light,dark}.svg` replaces the heart pill,
   and the round mark is the P alone. **A page using a heart badge's address** moves to the `p` one.
 ## 0.50.3 (alpha), 2026-11-21
