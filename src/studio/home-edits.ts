@@ -122,7 +122,6 @@ export interface SaveSite { service: string; repo: string; branch: string; mode:
 let siteOnce: Promise<SaveSite | null> | null = null;
 /** the site's save service, if it has one (null: edits stay in this browser and are downloaded) */
 export function saveSite(): Promise<SaveSite | null> {
-  takeSignIn();
   siteOnce ??= fetch(new URL('/popfold-save.json', location.origin))
     .then((r) => (r.ok ? r.json() : null))
     .then((m) => (m && typeof m.service === 'string' && typeof m.repo === 'string'
@@ -167,6 +166,8 @@ function takeSignIn() {
   } catch { /* not a session */ }
   history.replaceState(history.state, '', location.href.replace(/#.*$/, ''));
 }
+// at once, as the studio's code loads: the studio soon rewrites its address (?home=&stage=), which drops the fragment
+if (typeof location !== 'undefined' && typeof history !== 'undefined') takeSignIn();
 
 /**
  * Save a home's kept edits to the site's repository: the save service replays their commands on the newest home

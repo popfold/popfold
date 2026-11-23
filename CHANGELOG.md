@@ -4,6 +4,8 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+- The studio keeps the sign-in the save service hands back before it rewrites its own address (which dropped it).
+
 ## 0.52.1 (alpha), 2026-11-22
 
 - Signing in to save from a deployed studio goes there and back in the same page, not in a pop-up (GitHub's pages
