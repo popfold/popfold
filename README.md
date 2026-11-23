@@ -1,6 +1,6 @@
 # Popfold
 
-> **Status: alpha (0.52.2).** Everything here is experimental and changes often. Backwards compatibility is **not**
+> **Status: alpha (0.52.3).** Everything here is experimental and changes often. Backwards compatibility is **not**
 > required (APIs, recipes, piece keys, file formats, folder layout) until a version **1.0.0 or later is tagged**.
 > Until then, expect breaking changes in any commit and don't depend on anything staying put.
 
