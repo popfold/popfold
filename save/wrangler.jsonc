@@ -11,7 +11,7 @@
   "compatibility_flags": ["global_fetch_strictly_public"],
   "workers_dev": true,
   "vars": {
-    "GITHUB_CLIENT_ID": "",
-    "GITHUB_APP_URL": ""
+    "GITHUB_CLIENT_ID": "Iv23libD5N0O8oacXhus",
+    "GITHUB_APP_URL": "https://github.com/apps/popfold"
   }
 }

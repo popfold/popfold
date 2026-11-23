@@ -32,7 +32,9 @@ The build writes `popfold-save.json` at the site's root, and the service reads i
 
 ## Run your own
 
-1. **Create a GitHub App** (GitHub, Settings, Developer settings, GitHub Apps, New), with:
+1. **Create a GitHub App.** `node tools/create-github-app.mjs --service https://<your service> [--org <org>]` does it in
+   two clicks (GitHub's app manifest flow): it fills in every setting below, and gives the client secret to the Worker
+   and the id to `wrangler.jsonc` itself. By hand: GitHub, Settings, Developer settings, GitHub Apps, New, with:
    - **Callback URL:** `https://<your service>/callback`. For a local run, `http://127.0.0.1:8787/callback`.
    - **Expire user authorization tokens:** on.
    - **Webhook:** off.
