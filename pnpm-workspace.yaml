@@ -1,3 +1,7 @@
 packages:
   - templates/*
   - save
+# Wrangler (the save service's deploy tool) needs these two to fetch the program for this machine
+allowBuilds:
+  esbuild: true
+  workerd: true
