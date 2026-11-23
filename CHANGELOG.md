@@ -4,6 +4,8 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+## 0.52.0 (alpha), 2026-11-22
+
 - **Save from anywhere, first part**: a deployed studio can save its edits into the site's GitHub repository through
   the new save service (`save/`, a Cloudflare Worker). `homeSaver({ save: { service, repo } })` makes the build write
   `popfold-save.json`; the studio's kept-edits note gets *Sign in with GitHub to save* and *Save to GitHub*. The
