@@ -42,7 +42,8 @@ The build writes `popfold-save.json` at the site's root, and the service reads i
 
    Then note its client id, make a client secret, and note its public page (`https://github.com/apps/<name>`).
 2. **Configure the service.**
-   - In `wrangler.jsonc`: set `GITHUB_CLIENT_ID` and `GITHUB_APP_URL` under `vars`, and the account you deploy to.
+   - In `wrangler.jsonc`: set `GITHUB_CLIENT_ID` and `GITHUB_APP_URL` under `vars`. Name the account you deploy
+     to with `CLOUDFLARE_ACCOUNT_ID` in your environment, not in the file.
    - Set the secrets:
 
      ```

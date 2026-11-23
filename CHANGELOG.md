@@ -10,6 +10,8 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
   service replays the edits' commands on the newest home file there and commits with the editor's own token (to
   `studio/<login>` with a pull request, or straight onto the branch), so only people who may write to the repository
   can save. Not deployed yet: it needs the Popfold GitHub App (`save/README.md`).
+- On a built site the studio's object view no longer asks for `/__popfold/library`, which only the dev server has
+  (a 404 in the console on a deployed studio).
 - `readPage()` moved into `src/page-reader.ts` (still exported from `popfold/vite`), so the beat commands run off
   Node too; `lib/page-reader.js` ships with the plugin.
 

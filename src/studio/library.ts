@@ -9,6 +9,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { kindOf } from '../builtins';
 import { libraryOf, type LibraryEntry, type ModelFile } from '../pieces';
 import { shellOf } from '../shell';
+import { editsInBrowser } from './home-edits';
 import type { HomeRecipe, PieceSpec } from '../types';
 
 type Engine = Awaited<ReturnType<typeof import('../engine').startScene>>;
@@ -211,10 +212,14 @@ export function createLibrary(host: LibraryHost) {
     drawer.hidden = false;
     $('library-open').setAttribute('aria-expanded', 'true');
     note.textContent = '';
-    try {
-      const r = await fetch('/__popfold/library');
-      files = r.ok ? ((await r.json()) as { files: ModelFile[] }).files : [];
-    } catch { files = []; } // not on the dev server: only what the homes list
+    // only the dev server can read the site's folders: a built site shows what its homes list, and asks for nothing
+    if (editsInBrowser()) files = [];
+    else {
+      try {
+        const r = await fetch('/__popfold/library');
+        files = r.ok ? ((await r.json()) as { files: ModelFile[] }).files : [];
+      } catch { files = []; }
+    }
     refresh();
     search.focus();
   }
