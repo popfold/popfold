@@ -471,6 +471,9 @@ export interface LibraryEntry {
   used: { home: string; room: string; count: number }[];
 }
 
+/** a book's paper pop-ups (book.ts's POPUP_KINDS, kept here so this file needs no 3D code; a test keeps them equal) */
+export const BOOK_KINDS = ['card', 'stand', 'vfold', 'box', 'fan'] as const;
+
 type Home = Pick<HomeRecipe, 'id' | 'pieces' | 'kinds' | 'props' | 'propDir' | 'sharedDir' | 'diorama' | 'book'>;
 
 /** the file a model kind loads, as engine.ts finds it: a name with a folder comes from the shared folder */
@@ -497,6 +500,8 @@ export function libraryOf(homes: Home[], shown: string, files: ModelFile[] = [])
   const add = (e: Omit<LibraryEntry, 'used'>) => { if (named.has(e.kind)) return; named.add(e.kind); out.push({ ...e, used: used(e.kind) }); };
   const sorted = (l: Iterable<string>) => [...l].sort((a, b) => a.localeCompare(b));
   for (const k of sorted(Object.keys(home.kinds ?? {}))) add({ kind: k, from: 'site', usable: true });
+  // a book's own pieces: the paper pop-ups every book builds
+  if (home.book) for (const k of BOOK_KINDS) add({ kind: k, from: 'built-in', usable: true });
   for (const k of BUILT_IN_KINDS) add({ kind: k, from: 'built-in', usable: true });
   for (const k of sorted(home.props.filter((p) => !home.kinds?.[p]))) {
     const file = modelPath(home, k), f = byPath.get(file);
@@ -518,6 +523,8 @@ export function libraryOf(homes: Home[], shown: string, files: ModelFile[] = [])
   // a diorama's pieces are its model's parts: nothing is added to one from here
   if (home.diorama) for (const e of out) if (e.usable) { e.usable = false; e.why = "A diorama's pieces are its model's parts."; }
   // a book's pieces are paper pop-ups and the site's own kinds: furniture and model files do not go in one
-  if (home.book) for (const e of out) if (e.usable && e.from !== 'site') { e.usable = false; e.why = "A book's pieces are pop-ups (card, stand, vfold, box, fan) and the site's own kinds."; }
-  return out;
+  const popup = (k: string) => (BOOK_KINDS as readonly string[]).includes(k);
+  if (home.book) for (const e of out) if (e.usable && e.from !== 'site' && !popup(e.kind)) { e.usable = false; e.why = "A book's pieces are pop-ups (card, stand, vfold, box, fan) and the site's own kinds."; }
+  // what the home can use first, then what it cannot (each in the order above)
+  return [...out.filter((e) => e.usable), ...out.filter((e) => !e.usable)];
 }

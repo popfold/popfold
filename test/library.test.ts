@@ -2,10 +2,10 @@
 // which model files a home does not load, and the dev server's list of model files.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { BUILT_IN_KINDS, libraryOf, readHome } from '../src/pieces.ts';
+import { BOOK_KINDS, BUILT_IN_KINDS, libraryOf, readHome } from '../src/pieces.ts';
 import { modelFiles } from '../src/vite-plugin.ts';
 import type { HomeRecipe } from '../src/types.ts';
 
@@ -66,11 +66,19 @@ test('nothing is added to a diorama from the list', () => {
   assert.equal(libraryOf([room], 'room').some((e) => e.usable), false);
 });
 
-test('a book takes its own kinds from the list, not furniture or model files', () => {
+test("a book offers its own kinds and its pop-ups first, and lists furniture and model files after them, greyed", () => {
   const book = { id: 'book', props: ['lamp'], propDir: 'models/props', kinds: { tree: build }, book: { pages: [] } } as unknown as HomeRecipe;
   const list = libraryOf([book], 'book');
-  assert.deepEqual(list.filter((e) => e.usable).map((e) => e.kind), ['tree']);
+  assert.deepEqual(list.filter((e) => e.usable).map((e) => e.kind), ['tree', 'card', 'stand', 'vfold', 'box', 'fan']);
+  assert.deepEqual(list.slice(0, 6).map((e) => e.usable), [true, true, true, true, true, true], 'what can be added comes first');
   assert.match(list.find((e) => e.kind === BUILT_IN_KINDS[0])?.why ?? '', /pop-ups/);
+});
+
+test('the pop-ups the object view offers are the ones a book builds', () => {
+  // (book.ts is 3D code Node does not load: its list is read from the source)
+  const src = readFileSync(new URL('../src/book.ts', import.meta.url), 'utf8');
+  const popups = /POPUP_KINDS = \[([^\]]*)\]/.exec(src)?.[1].match(/'([a-z]+)'/g)?.map((k) => k.slice(1, -1));
+  assert.deepEqual([...BOOK_KINDS], popups);
 });
 
 test('a home file may name a built-in kind, and only one that exists', () => {

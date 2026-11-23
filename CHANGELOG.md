@@ -4,6 +4,10 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+- A book's object view (*Every object*) offers its pop-ups, card, stand, vfold, box and fan, with an Add each, after
+  the site's own kinds. What the home cannot use (furniture, model files, in a book) comes after everything it can.
+  Before, a book's view listed only furniture it could not add.
+
 ## 0.52.2 (alpha), 2026-11-22
 
 - The studio keeps the sign-in the save service hands back before it rewrites its own address (which dropped it).
