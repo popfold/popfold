@@ -122,6 +122,7 @@ export interface SaveSite { service: string; repo: string; branch: string; mode:
 let siteOnce: Promise<SaveSite | null> | null = null;
 /** the site's save service, if it has one (null: edits stay in this browser and are downloaded) */
 export function saveSite(): Promise<SaveSite | null> {
+  takeSignIn();
   siteOnce ??= fetch(new URL('/popfold-save.json', location.origin))
     .then((r) => (r.ok ? r.json() : null))
     .then((m) => (m && typeof m.service === 'string' && typeof m.repo === 'string'
@@ -142,22 +143,29 @@ export function signedIn(site: SaveSite): Signed | null {
 }
 const signOut = (site: SaveSite) => { try { localStorage.removeItem(signedKey(site.service)); } catch { /* not kept */ } };
 
-/** sign in with GitHub, in a window of the save service's; gives the editor's login, or null when they cancel */
-export function signInToSave(site: SaveSite): Promise<string | null> {
-  const from = new URL(site.service).origin;
-  const win = open(`${site.service}/sign-in?origin=${encodeURIComponent(location.origin)}`, 'popfold-save', 'width=520,height=640');
-  if (!win) return Promise.reject(new Error('the browser blocked the sign-in window: allow pop-ups for this site'));
-  return new Promise((done) => {
-    const closed = setInterval(() => { if (win.closed) { clearInterval(closed); removeEventListener('message', on); done(null); } }, 500);
-    const on = (e: MessageEvent) => {
-      if (e.origin !== from || e.data?.type !== 'popfold-save') return;
-      clearInterval(closed); removeEventListener('message', on);
-      if (!e.data.session) { done(null); return; }
-      try { localStorage.setItem(signedKey(site.service), JSON.stringify({ session: e.data.session, login: e.data.login, until: e.data.until ?? Date.now() + 8 * 3600_000 } satisfies Signed)); } catch { /* kept for this page only */ }
-      done(e.data.login);
-    };
-    addEventListener('message', on);
-  });
+/**
+ * Sign in with GitHub: this page goes to the save service (and GitHub) and comes back with the session in its
+ * address's fragment, which takeSignIn() keeps. (A pop-up loses its link back on GitHub's pages.) The kept edits wait
+ * in localStorage meanwhile; `then` names the home to save as soon as the studio is back.
+ */
+export function signInToSave(site: SaveSite, then?: string) {
+  try { if (then) sessionStorage.setItem(SAVE_NEXT, then); } catch { /* the editor presses Save again */ }
+  location.assign(`${site.service}/sign-in?origin=${encodeURIComponent(location.origin)}&back=${encodeURIComponent(location.href.replace(/#.*$/, ''))}`);
+}
+const SAVE_NEXT = 'popfold:save-after-sign-in';
+/** the home to save now that the editor is back from signing in, once (null: none) */
+export function saveAfterSignIn(): string | null {
+  try { const id = sessionStorage.getItem(SAVE_NEXT); sessionStorage.removeItem(SAVE_NEXT); return id; } catch { return null; }
+}
+/** keep a session the save service handed back in this page's address (#popfold-save=...), and take it out of it */
+function takeSignIn() {
+  const m = /[#&]popfold-save=([^&]+)/.exec(location.hash);
+  if (!m) return;
+  try {
+    const s = JSON.parse(decodeURIComponent(m[1])) as Signed & { service: string };
+    if (typeof s.service === 'string' && typeof s.session === 'string') localStorage.setItem(signedKey(s.service.replace(/\/$/, '')), JSON.stringify({ session: s.session, login: s.login, until: s.until } satisfies Signed));
+  } catch { /* not a session */ }
+  history.replaceState(history.state, '', location.href.replace(/#.*$/, ''));
 }
 
 /**

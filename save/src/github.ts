@@ -23,7 +23,9 @@ export class GitHub {
   constructor(o: GitHubOptions) {
     this.o = o;
     this.api = (o.api ?? 'https://api.github.com').replace(/\/$/, '');
-    this.fetcher = o.fetch ?? fetch;
+    // (fetch called as this.fetcher would get `this`: a Worker refuses that as an "illegal invocation")
+    const f = o.fetch ?? fetch;
+    this.fetcher = (input, init) => f(input, init);
   }
 
   /** a call to the API; a refusal is a GitHubError with GitHub's own words */

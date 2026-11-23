@@ -189,15 +189,20 @@ export async function handle(req: Request, env: Env, fetcher: typeof fetch = fet
   }
 }
 
-// ----- sign-in: GitHub's web flow for a GitHub App, in a pop-up the studio opens -----
+// ----- sign-in: GitHub's web flow for a GitHub App. The studio's page goes to it and comes back: a pop-up would lose
+// its link to the studio on GitHub's pages (they set Cross-Origin-Opener-Policy), so the session comes back in the
+// address's fragment (#popfold-save=...), which no server sees. The studio's kept edits wait in localStorage. -----
 
-interface SignInState { origin: string; until: number }
+interface SignInState { origin: string; back: string; until: number }
 
 async function signIn(url: URL, env: Env, fetcher: typeof fetch): Promise<Response> {
   const origin = url.searchParams.get('origin');
   if (!isOrigin(origin)) throw new Refusal(400, 'sign-in needs the site\'s origin (?origin=https://example.com)');
+  // where to come back to: a page of that same site (the studio), by default its root
+  const back = url.searchParams.get('back') ?? `${origin}/`;
+  if (!back.startsWith(`${origin}/`)) throw new Refusal(400, 'sign-in comes back only to a page of the site it was started from');
   await manifestOf(origin, fetcher); // only a site that has turned on saving
-  const state = await seal(env.SESSION_KEY, { origin, until: Date.now() + 10 * 60_000 } satisfies SignInState);
+  const state = await seal(env.SESSION_KEY, { origin, back: back.replace(/#.*$/, ''), until: Date.now() + 10 * 60_000 } satisfies SignInState);
   const to = new URL('/login/oauth/authorize', env.GITHUB_WEB ?? 'https://github.com');
   to.searchParams.set('client_id', env.GITHUB_CLIENT_ID);
   to.searchParams.set('redirect_uri', `${url.origin}/callback`);
@@ -207,7 +212,7 @@ async function signIn(url: URL, env: Env, fetcher: typeof fetch): Promise<Respon
 
 async function callback(url: URL, env: Env, fetcher: typeof fetch): Promise<Response> {
   const state = await unseal<SignInState>(env.SESSION_KEY, url.searchParams.get('state') ?? '');
-  if (!state || state.until < Date.now() || !isOrigin(state.origin)) return page('Sign-in expired', '<p>This sign-in is too old or was not started here. Close this window and sign in again from the studio.</p>');
+  if (!state || state.until < Date.now() || !isOrigin(state.origin) || !state.back?.startsWith(`${state.origin}/`)) return page('Sign-in expired', '<p>This sign-in is too old or was not started here. Go back to the studio and sign in again.</p>');
   const code = url.searchParams.get('code');
   if (!code) return page('Not signed in', '<p>GitHub did not sign you in. Close this window and try again.</p>');
   const r = await fetcher(new URL('/login/oauth/access_token', env.GITHUB_WEB ?? 'https://github.com').toString(), {
@@ -226,25 +231,20 @@ async function callback(url: URL, env: Env, fetcher: typeof fetch): Promise<Resp
   const where = branchOf(m, user.login) === m.branch ? `straight onto <b>${esc(m.branch)}</b>` : `onto your own branch <b>${esc(branchOf(m, user.login))}</b>, with a pull request into <b>${esc(m.branch)}</b>`;
   const warn = !can ? `<p class="warn">You cannot reach ${esc(m.repo)} yet: its owner installs the Popfold app on it${env.GITHUB_APP_URL ? ` (<a href="${esc(env.GITHUB_APP_URL)}">here</a>)` : ''}.</p>`
     : !can.push ? `<p class="warn">You may read ${esc(m.repo)} but not write to it: ask its owner for write access.</p>` : '';
-  const message = JSON.stringify({ type: 'popfold-save', session, login: user.login, until });
+  const handBack = `${state.back}#popfold-save=${encodeURIComponent(JSON.stringify({ service: url.origin, session, login: user.login, until }))}`;
   return page('Save from the studio', `
     <p><b>${esc(state.origin)}</b> asks to save your studio edits to <b>${esc(m.repo)}</b> as <b>${esc(user.login)}</b>, ${where}.</p>
     ${warn}
     <p class="small">The studio keeps this sign-in for ${Math.round(hours)} hours. It cannot see your GitHub token.</p>
-    <p><button id="ok">Allow</button> <button id="no">Cancel</button></p>
-    <script>
-      const send = (m) => { if (window.opener) window.opener.postMessage(m, ${JSON.stringify(state.origin)}); window.close(); };
-      document.getElementById('ok').onclick = () => send(${message});
-      document.getElementById('no').onclick = () => send({ type: 'popfold-save', cancelled: true });
-    </script>`);
+    <p><a class="button" id="ok" href="${esc(handBack)}">Allow</a> <a class="button" href="${esc(state.back)}">Cancel</a></p>`);
 }
 
 function page(title: string, body: string): Response {
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title>
 <style>body{font:16px/1.5 system-ui,sans-serif;max-width:32rem;margin:3rem auto;padding:0 1rem;color:#222;background:#fbf8f3}
 h1{font-size:1.3rem}.warn{background:#fff1e6;border-left:3px solid #e07b39;padding:.5rem .75rem}.small{color:#666;font-size:.9rem}
-button{font:inherit;padding:.45rem 1rem;border-radius:.5rem;border:1px solid #bbb;background:#fff;cursor:pointer}#ok{background:#222;color:#fff;border-color:#222}
-@media (prefers-color-scheme:dark){body{background:#1b1a19;color:#eee}.small{color:#aaa}.warn{background:#3a2a1f}button{background:#2a2928;color:#eee;border-color:#555}#ok{background:#eee;color:#111}}</style>
+.button{display:inline-block;text-decoration:none;color:inherit;padding:.45rem 1rem;border-radius:.5rem;border:1px solid #bbb;background:#fff}#ok{background:#222;color:#fff;border-color:#222}
+@media (prefers-color-scheme:dark){body{background:#1b1a19;color:#eee}.small{color:#aaa}.warn{background:#3a2a1f}.button{background:#2a2928;color:#eee;border-color:#555}#ok{background:#eee;color:#111}}</style>
 </head><body><h1>${esc(title)}</h1>${body}</body></html>`;
-  return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'", 'x-frame-options': 'DENY' } });
+  return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'", 'x-frame-options': 'DENY' } });
 }

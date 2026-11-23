@@ -11,7 +11,7 @@ import { shellOf } from '../shell';
 import { BUILT_IN_KINDS } from '../pieces';
 import { POPUP_KINDS } from '../book';
 import { formatHome } from '../home-commands';
-import { dropLastEdit, editsInBrowser, forgetEdits, homeRequest, KEEP_MS, KEPT_EVENT, keptEdits, saveSite, saveToRepo, signedIn, signInToSave } from './home-edits';
+import { dropLastEdit, editsInBrowser, forgetEdits, homeRequest, KEEP_MS, KEPT_EVENT, keptEdits, saveAfterSignIn, saveSite, saveToRepo, signedIn, signInToSave } from './home-edits';
 
 type Engine = Awaited<ReturnType<typeof import('../engine').startScene>>;
 
@@ -594,18 +594,18 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
       }
       if (!pending) return;
       const who = signedIn(site);
-      actions.prepend(btn(who ? `Save to GitHub as ${who.login}` : 'Sign in with GitHub to save', async () => {
-        if (!signedIn(site)) {
-          const login = await signInToSave(site).catch((err: Error) => { status.textContent = err.message; return null; });
-          if (!login) return;
-        }
+      const save = async () => {
+        if (!signedIn(site)) { status.textContent = 'Signing in with GitHub…'; signInToSave(site, id); return; }
         status.textContent = `Saving to ${site.repo}…`;
         const res = await saveToRepo(site, id);
         if (!res.ok) { status.textContent = `Not saved: ${res.why}`; if (res.signIn) showKeptNote(id); return; }
         status.textContent = `Saved to ${site.repo} on ${res.branch}.`;
         if (res.home) await showFile(res.home).catch(() => {}); // the newest file, with anyone else's edits in it
         showKeptNote(id);
-      }));
+      };
+      actions.prepend(btn(who ? `Save to GitHub as ${who.login}` : 'Sign in with GitHub to save', () => void save()));
+      // back from signing in to save this home: save it now
+      if (who && saveAfterSignIn() === id) void save();
     });
   }
   /** a built studio opening a home it has edits for: show the home as they left it */

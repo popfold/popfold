@@ -4,6 +4,10 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+- Signing in to save from a deployed studio goes there and back in the same page, not in a pop-up (GitHub's pages
+  cut a pop-up's link back to the studio); the studio saves as soon as it is back. The save service no longer fails
+  on a Worker with "Illegal invocation" when it calls GitHub.
+
 ## 0.52.0 (alpha), 2026-11-22
 
 - **Save from anywhere, first part**: a deployed studio can save its edits into the site's GitHub repository through

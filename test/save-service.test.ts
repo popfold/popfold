@@ -197,6 +197,8 @@ test('sign-in sends the editor to GitHub only for a site that has turned saving 
   const to = new URL(r.headers.get('location')!);
   assert.equal(to.origin + to.pathname, 'https://github.com/login/oauth/authorize');
   assert.equal(to.searchParams.get('redirect_uri'), 'https://save.test/callback');
+  const away = await handle(new Request(`https://save.test/sign-in?origin=${encodeURIComponent(SITE)}&back=${encodeURIComponent('https://evil.test/studio.html')}`), env, fetcher);
+  assert.equal(away.status, 400, 'it comes back only to a page of the site that asked');
   const off = await handle(new Request('https://save.test/sign-in?origin=https://nothing.test'), env, (async () => new Response('', { status: 404 })) as typeof fetch);
   assert.equal(off.status, 400);
 });
