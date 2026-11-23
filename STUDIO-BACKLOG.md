@@ -9,11 +9,35 @@ and moving beats; drafts; undo and redo of edits and saves; one command list sha
 
 ## Waiting on a decision
 
-- [ ] **Save from anywhere** (M) **decide:** today the studio saves only on the local dev server; through a tunnel
-      or on a deployed site it downloads the JSON. The idea: a small service behind sign-in that commits the home
-      file (and, for beats, the page) to a branch.
-      - Where it runs (a Cloudflare Worker? the dev machine?), and who may sign in?
-      - Commit straight to `main`, or to a branch to review?
+- [ ] **Save from anywhere** (M to L). Decided by the owner, 2026-11-22: design B (command replay) on Cloudflare
+      first, with users who sign themselves up. Since 0.51.0 a built studio already keeps its edits in the browser
+      for 24 hours and downloads the file; this saves them into the site's repository instead.
+      - **The service:** one Worker at `save.popfold.ca`, in Popfold's own Cloudflare account. It is written in
+        TypeScript against the web-standard `fetch(Request) → Response`, so the same core can later run locally
+        (`popfold serve`) and on Azure (Functions v4 on Node, or Container Apps) behind a thin wrapper each. Anyone
+        can also deploy their own copy with their own GitHub App.
+      - **Command replay:** the studio sends `{ repo, branch, home, base, commands }` (`base`: the file's version the
+        edits started from). The Worker fetches the newest home file and page from GitHub, runs the same
+        `runCommands` (`src/home-commands.ts`; parse5 for the page's sections), checks the result with `readHome`,
+        and commits the file and, for beats, the page. Edits by two people merge unless they touch the same piece,
+        which comes back as a conflict that says which.
+      - **Users are GitHub's, not ours.** A Popfold GitHub App (contents, and pull requests for branches):
+        - a site's owner signs up by installing the app on the site's repository: no form, no approval;
+        - an editor signs up by "Sign in with GitHub" in the studio; the Worker asks GitHub whether they may write
+          to that repository, and if not the studio says so and keeps the edits in the browser;
+        - commits are made with the editor's own token (a GitHub App user token), so they carry the editor's name
+          and GitHub enforces the repository's rules (protected branches, reviews); losing access to the repository
+          loses saving, with nothing to clean up here.
+      - **Nothing much stored:** sessions as a signed token (or KV); D1 only later, for an audit log or invites.
+        The GitHub App's private key is a Worker secret.
+      - **Sign-in across domains:** the studio is on the site's domain and the Worker on popfold.ca, so sign-in is
+        a pop-up that hands back a short-lived token (no third-party cookies). CORS allows only the origins of
+        sites that have the app installed.
+      - **Later:** people without GitHub (by e-mailed one-time link through Cloudflare Email, with a role per site
+        kept in D1, the app committing for them and naming them in the commit); Azure and local wrappers.
+      - Cloudflare Access is not for this (50 free seats, policies by hand); it stays for the owner's own tools.
+      - **decide:** commit to a branch per editor (`studio/<login>`, with a pull request) or straight to the
+        branch the site deploys from? Should a commit deploy the site (CI is off until 1.0.0)?
 - [ ] **Full mode** (L) **decide:** a chat panel in the studio that drives the command list, looks at snapshots,
       and can generate pieces and art into the scene.
       - Which model and whose API key? It goes through a dev-server proxy, so no key reaches the page.
