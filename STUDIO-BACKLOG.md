@@ -12,10 +12,12 @@ and moving beats; drafts; undo and redo of edits and saves; one command list sha
 - [ ] **Save from anywhere** (M to L). Decided by the owner, 2026-11-22: design B (command replay) on Cloudflare
       first, with users who sign themselves up. Since 0.51.0 a built studio already keeps its edits in the browser
       for 24 hours and downloads the file; this saves them into the site's repository instead.
-      - **Status (2026-11-22):** built, not released or deployed: `save/` (the Worker, with tests), `homeSaver({ save })`
-        (writes `popfold-save.json`) and *Save to GitHub* in the studio's kept-edits note. Next: the owner creates
-        the Popfold GitHub App (`save/README.md`), then a test on a real repository, then `save.popfold.ca` after the
-        domain moves (ops/cloudflare-split.md).
+      - **Status (2026-11-23):** working end to end on the test site popfold/save-test: an edit in the deployed studio,
+        sign-in with GitHub, a commit on studio/<login> with a pull request, a Cloudflare preview of that branch, and
+        the live site after the merge (Popfold 0.52.2; service at popfold-save.popfold.workers.dev; GitHub App
+        "Popfold"). Next: save.popfold.ca after the domain moves, then turn it on for the storybook. Small things seen
+        on the way: the studio's Add form does not fill in an id when the kind is picked by script, so an empty id is
+        refused.
       - **The service:** one Worker at `save.popfold.ca`, in Popfold's own Cloudflare account. It is written in
         TypeScript against the web-standard `fetch(Request) → Response`, so the same core can later run locally
         (`popfold serve`) and on Azure (Functions v4 on Node, or Container Apps) behind a thin wrapper each. Anyone

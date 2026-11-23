@@ -57,6 +57,19 @@ The build writes `popfold-save.json` at the site's root, and the service reads i
 To run it locally, copy `.dev.vars.example` to `.dev.vars`, fill it in and run `pnpm dev`. The service runs on port
 8787, and a site built with `service: 'http://127.0.0.1:8787'` and served by `vite preview` can save through it.
 
+## From a save to the live site
+
+Popfold's test site, `popfold/save-test` (https://save-test.popfold.workers.dev), runs the whole loop with
+Cloudflare's Workers Builds connected to its repository. Edits saved in the studio go to `studio/<login>` with a pull
+request. Cloudflare builds that branch to a preview, `https://studio-<login>-<worker>.<subdomain>.workers.dev`, and
+merging the pull request deploys the site. For branch previews, the site's `wrangler.jsonc` needs a `"previews": {}`
+block. `wrangler preview` refuses to run without one.
+
+Sign-in leaves the studio's page and comes back to it, rather than opening a pop-up: GitHub's pages cut a pop-up's
+link back to the page that opened it. The session comes back in the address's fragment, which the studio reads
+before it rewrites its own address. The kept edits wait in the browser, and the studio saves them as soon as it is
+back.
+
 ## Not done yet
 
 - People without GitHub accounts (an invite by e-mail, with a role per site).
