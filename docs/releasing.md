@@ -135,3 +135,16 @@ It publishes `@popfold/engine` at the version in `package.json`, with the files 
 the source, `lib/vite-plugin.js`, the command, the cases, the schema, the templates, the docs and the tools, and
 nothing of the tests or a machine's own notes. `pnpm pack` makes the same file to look into first. npm may ask for
 a one-time code. Sites can then `pnpm exec popfold update`.
+
+### When npm is out of reach
+
+A pushed release's tag installs the same package from GitHub, with the same files, `lib/` included (it is
+committed). Until the release is on npm, a site takes it by hand:
+
+```
+"popfold": "github:popfold/popfold#v0.51.0"
+```
+
+then `pnpm install`, `pnpm typecheck`, `pnpm build` and the steps under *Update a site*. `popfold update` reads only
+`npm:@popfold/engine@<version>` and refuses this line, so once the release is on npm, put that line back and run
+`pnpm install`.
