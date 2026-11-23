@@ -565,12 +565,36 @@ forgets the edits. The site's own page never reads them: it shows the home it wa
 file can be edited this way, and a change to a page's sections (adding, removing or moving a beat) still needs the
 dev server. Unsaved moves are kept as a draft for a day too.
 
+### Saving a built studio's edits to GitHub
+
+A site can let its deployed studio save into the site's repository instead of a download, through Popfold's **save
+service** (`save/` in Popfold's repository; Popfold runs one, and anyone can run their own). Turn it on in
+`vite.config.ts`:
+
+```ts
+homeSaver({ home: 'src/home.json', save: { service: 'https://save.popfold.ca', repo: 'you/your-site' } }),
+```
+
+The build then writes `popfold-save.json` at the site's root: the repository, the branch the site is built from
+(`branch`, default `main`), and each home's file and story page in it (`folder` when the site is not at the
+repository's root). The repository's owner installs the Popfold GitHub App on it once. In the studio, the note
+about kept edits gets *Sign in with GitHub to save*, then *Save to GitHub*:
+
+- The service replays the edits' commands on the **newest** home file in the repository and commits it with the
+  editor's own GitHub token, so the commit is theirs and GitHub's rules (protected branches, reviews) hold. Edits
+  someone else saved meanwhile stay; a command that no longer fits (a piece they removed) comes back as a refusal
+  that says so.
+- Only people who may write to the repository can save. Anyone else is told to ask its owner.
+- `mode: 'pull-request'` (the default) puts each editor's saves on their own branch, `studio/<login>`, with one pull
+  request into `branch`; `mode: 'direct'` commits onto `branch` itself.
+- The site shows the change once it is built again from the repository.
+
 Every edit that writes the home file is one of a short **command list** (`place`, `add`, `remove`, `story`,
 `camera`, `beat`, `add-beat`, `remove-beat`, `move-beat`, `look`, `places`, `link`): the studio sends them, and so can an agent (`popfold mcp`, in
 [agent-tools.md](agent-tools.md)) or a script.
 
-Saving only works on the local dev server. Unsaved changes are kept as a draft in the browser and offered back
-after a reload.
+Writing the file straight away only works on the local dev server; a built studio keeps its edits in the browser,
+or saves them to GitHub (above). Unsaved changes are kept as a draft in the browser and offered back after a reload.
 
 One thing to know: keys for repeated pieces are numbered in the order the code adds them (`#2`, `#3`). If you add
 a second lamp *before* an existing one, the later ones shift, and their stories and places move with the

@@ -98,7 +98,9 @@ change a pure function, add or update its test.
 | `schema/home.schema.json` | The JSON Schema of a site's home file (`src/home.json`). Keep it in step with `readHome()`; a test compares them |
 | `src/props.ts`, `builtins.ts`, `textures.ts`, `flow.ts`, `avatar.ts`, `effects.ts` | Built-in pieces, and the ones a home file can name (`builtin/sofa`); canvas textures, glowing pipes, the built-in figure, sparkles |
 | `src/element.ts`, `lib.ts`, `vite.lib.config.ts` | `<popfold-home>` and the library bundle (`pnpm build:lib`): Popfold on a page with no build step |
-| `src/home-commands.ts` | Every edit a home file takes (the command list): run by the dev server, `popfold mcp` and the studio on a built site |
+| `src/home-commands.ts` | Every edit a home file takes (the command list): run by the dev server, `popfold mcp`, the studio on a built site and the save service |
+| `src/page-reader.ts` | `readPage()`: a story page's sections, head and words (parse5 only, no Node), for the plugin and the save service |
+| `save/` | The save service: a built studio's edits committed to the site's GitHub repository (a Cloudflare Worker; GitHub sign-in; `save/README.md`) |
 | `src/fallback.ts`, `vite-plugin.ts`, `text.ts` | The page without 3D (browser side, build side), a page in another language (`translateHtml()`, and `t()` in the browser) and the dev save endpoints |
 | `src/debug-hook.ts`, `debug.ts` | The debug panel: the few lines that open it, and the panel itself, fetched only then |
 | `src/studio/` | Popfold Studio: `mountStudio()`, the props inspector, markup, styles; `home-edits.ts`: where its edits go (the dev server, or this browser on a built site) |
@@ -170,10 +172,10 @@ __popfold.scene.describe().pieces
   builds every material again. Keep lights on the home's root or in the scene and move them (`docs/guide.md`,
   "A smooth first scroll").
 - **`gen()` returns `null` when a file is missing.** Always write `gen('x', 1) ?? P.something()` or guard it.
-- **`src/vite-plugin.ts` imports only `./home-commands` of Popfold's at run time** (the rest is types). Node loads
-  it as it is when it reads a site's `vite.config.ts`: `pnpm build:pkg` makes both into `lib/` and names that one
-  import with its `.js`. Keep `home-commands.ts` plain data in, plain data out, with nothing of Node's: the studio
-  runs the same commands in the browser on a built site.
+- **`src/vite-plugin.ts` imports only `./home-commands` and `./page-reader` of Popfold's at run time** (the rest is
+  types). Node loads it as it is when it reads a site's `vite.config.ts`: `pnpm build:pkg` makes all three into
+  `lib/` and names those imports with their `.js`. Keep both plain data in, plain data out, with nothing of Node's:
+  the studio runs the same commands in the browser on a built site, and the save service on a Worker.
 - **Node's test runner needs `--import ./test/resolve-ts.mjs`** (`pnpm test` passes it) to load `src/` files, which
   import each other without an extension.
 - **`vite.config.ts` must not import 3D code.** It runs in Node. Import the stories from a plain data file, not
@@ -187,7 +189,7 @@ __popfold.scene.describe().pieces
 - **The studio writes the home file only on the dev server, opened on `127.0.0.1` or `localhost`.** Through a tunnel
   it refuses. On a built site (`vite build`, a deployed studio) its edits run in the browser on a copy of the home
   file, kept in localStorage for a day after the last edit (`src/studio/home-edits.ts`), and *Download the home
-  file* takes them away.
+  file* takes them away, or a site with `homeSaver({ save })` saves them to its GitHub repository (`save/`).
 - **`popfold stills` needs a local Chrome or Edge** and uses the GPU. Without a GPU it works but takes minutes.
 - **Windows file locks** can fail a still capture once. The command retries once by itself.
 - **A site loads the Vite plugin from `lib/vite-plugin.js`**, made from `src/vite-plugin.ts` by `pnpm build:pkg`

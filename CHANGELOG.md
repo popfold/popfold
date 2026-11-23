@@ -4,6 +4,15 @@ Popfold is in **alpha**: nothing is stable and backwards compatibility is not ke
 
 ## Unreleased
 
+- **Save from anywhere, first part**: a deployed studio can save its edits into the site's GitHub repository through
+  the new save service (`save/`, a Cloudflare Worker). `homeSaver({ save: { service, repo } })` makes the build write
+  `popfold-save.json`; the studio's kept-edits note gets *Sign in with GitHub to save* and *Save to GitHub*. The
+  service replays the edits' commands on the newest home file there and commits with the editor's own token (to
+  `studio/<login>` with a pull request, or straight onto the branch), so only people who may write to the repository
+  can save. Not deployed yet: it needs the Popfold GitHub App (`save/README.md`).
+- `readPage()` moved into `src/page-reader.ts` (still exported from `popfold/vite`), so the beat commands run off
+  Node too; `lib/page-reader.js` ships with the plugin.
+
 ## 0.51.0 (alpha), 2026-11-22
 
 - The studio works on a built site: with no dev server to write the home file, its edits (add, remove, move, look,

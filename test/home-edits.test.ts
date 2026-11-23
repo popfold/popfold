@@ -6,9 +6,9 @@ import assert from 'node:assert/strict';
 const store = new Map<string, string>();
 Object.assign(globalThis, {
   localStorage: { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => { store.set(k, v); }, removeItem: (k: string) => { store.delete(k); } },
-  location: { pathname: '/studio.html' },
+  location: { pathname: '/studio.html', origin: 'https://site.test' },
 });
-const { dropLastEdit, editsInBrowser, forgetEdits, homeRequest, KEEP_MS, keptEdits, useHomeFiles } = await import('../src/studio/home-edits.ts');
+const { dropLastEdit, editsInBrowser, forgetEdits, homeRequest, KEEP_MS, keptEdits, saveSite, saveToRepo, useHomeFiles } = await import('../src/studio/home-edits.ts');
 
 const built = { pieces: [{ id: 'sofa', room: 'living', kind: 'builtin/sofa' }] };
 useHomeFiles((id) => (id === 'den' ? built : undefined));
@@ -74,4 +74,52 @@ test('an edit the studio could not build is taken back for good', async () => {
   assert.deepEqual(ids(dropLastEdit('den')), ['sofa']);
   assert.deepEqual(ids(dropLastEdit('den')), ['sofa'], 'with no edit left, the home as built');
   assert.equal(keptEdits('den'), null, 'and nothing is kept');
+});
+
+test("each kept edit remembers its commands, so they can be saved to the site's repository; undo takes them back", async () => {
+  store.clear();
+  await homeRequest('den', add('lamp'));
+  await homeRequest('den', add('rug'));
+  const names = () => (keptEdits('den')?.log ?? []).flat().map((c) => (c.args as { id: string }).id);
+  assert.deepEqual(names(), ['lamp', 'rug']);
+  await homeRequest('den', { undo: true });
+  assert.deepEqual(names(), ['lamp']);
+  await homeRequest('den', { redo: true });
+  assert.deepEqual(names(), ['lamp', 'rug']);
+  dropLastEdit('den');
+  assert.deepEqual(names(), ['lamp']);
+});
+
+test("a site with a save service: Save sends the kept commands, and the kept copy becomes the repository's file", async () => {
+  store.clear();
+  const sent: { url: string; init?: RequestInit }[] = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async (input: string | URL, init?: RequestInit) => {
+    const url = String(input);
+    sent.push({ url, init });
+    if (url === 'https://site.test/popfold-save.json') return Response.json({ service: 'https://save.test/', repo: 'owner/site', branch: 'main', mode: 'pull-request', homes: {} });
+    const commands = JSON.parse(String(init?.body)).commands as { args: { id: string } }[];
+    const home = { pieces: [...built.pieces, ...commands.map((c) => ({ id: c.args.id, room: 'living', kind: 'builtin/lamp' })), { id: 'theirs', room: 'living', kind: 'builtin/lamp' }] };
+    return Response.json({ ok: true, home, branch: 'studio/editor', pullRequest: 'https://github.com/owner/site/pull/1' });
+  }) as typeof fetch;
+  try {
+    const site = await saveSite();
+    assert.equal(site?.service, 'https://save.test');
+    assert.equal((await saveToRepo(site!, 'den')).ok, false, 'nothing to save yet');
+    await homeRequest('den', add('lamp'));
+    const out = await saveToRepo(site!, 'den');
+    assert.equal(out.ok, false);
+    assert.equal(out.signIn, true, 'not signed in: the studio asks to sign in');
+    store.set('popfold:save-session:https://save.test', JSON.stringify({ session: 'sealed', login: 'editor', until: Date.now() + 60_000 }));
+    const res = await saveToRepo(site!, 'den');
+    assert.equal(res.ok, true, res.why);
+    const post = sent.at(-1)!;
+    assert.equal(post.url, 'https://save.test/home/den');
+    assert.equal((post.init!.headers as Record<string, string>).authorization, 'Bearer sealed');
+    assert.deepEqual(JSON.parse(String(post.init?.body)).commands.map((c: { args: { id: string } }) => c.args.id), ['lamp']);
+    const k = keptEdits('den')!;
+    assert.deepEqual(ids(k.home), ['sofa', 'lamp', 'theirs'], "the repository's newest file, with anyone else's edits");
+    assert.deepEqual(k.log, [], 'nothing left to save');
+    assert.equal(k.saved?.pullRequest, 'https://github.com/owner/site/pull/1');
+  } finally { globalThis.fetch = realFetch; }
 });

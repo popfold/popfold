@@ -11,7 +11,7 @@ import { shellOf } from '../shell';
 import { BUILT_IN_KINDS } from '../pieces';
 import { POPUP_KINDS } from '../book';
 import { formatHome } from '../home-commands';
-import { dropLastEdit, editsInBrowser, forgetEdits, homeRequest, KEEP_MS, KEPT_EVENT, keptEdits } from './home-edits';
+import { dropLastEdit, editsInBrowser, forgetEdits, homeRequest, KEEP_MS, KEPT_EVENT, keptEdits, saveSite, saveToRepo, signedIn, signInToSave } from './home-edits';
 
 type Engine = Awaited<ReturnType<typeof import('../engine').startScene>>;
 
@@ -580,6 +580,33 @@ export function createInspector(engine: Engine, getHome: () => string, recipeOf:
     );
     keptBox.append(text, actions);
     status.before(keptBox);
+    // a site with a save service: the edits can go into its repository instead of a download
+    const box = keptBox;
+    void saveSite().then((site) => {
+      if (!site || keptBox !== box) return;
+      const now = keptEdits(id);
+      const pending = (now?.log ?? []).length;
+      if (now?.saved && !pending) {
+        text.textContent = `Saved to ${now.saved.repo} on ${now.saved.branch}${now.saved.pullRequest ? ', in a pull request' : ''}. The site shows it once it is built again.`;
+        if (now.saved.pullRequest) text.append(' ', Object.assign(document.createElement('a'), { href: now.saved.pullRequest, target: '_blank', rel: 'noopener', textContent: 'Open the pull request' }));
+      } else {
+        text.textContent = `${pending} edit${pending === 1 ? '' : 's'} to this home ${pending === 1 ? 'is' : 'are'} kept in this browser until ${until}. Save them to ${site.repo}, or download the home file.`;
+      }
+      if (!pending) return;
+      const who = signedIn(site);
+      actions.prepend(btn(who ? `Save to GitHub as ${who.login}` : 'Sign in with GitHub to save', async () => {
+        if (!signedIn(site)) {
+          const login = await signInToSave(site).catch((err: Error) => { status.textContent = err.message; return null; });
+          if (!login) return;
+        }
+        status.textContent = `Saving to ${site.repo}…`;
+        const res = await saveToRepo(site, id);
+        if (!res.ok) { status.textContent = `Not saved: ${res.why}`; if (res.signIn) showKeptNote(id); return; }
+        status.textContent = `Saved to ${site.repo} on ${res.branch}.`;
+        if (res.home) await showFile(res.home).catch(() => {}); // the newest file, with anyone else's edits in it
+        showKeptNote(id);
+      }));
+    });
   }
   /** a built studio opening a home it has edits for: show the home as they left it */
   async function showKept(id: string) {

@@ -1,7 +1,7 @@
 // Every edit a home file can take: the command list, and the functions that make each change. Plain data in, plain
 // data out, with nothing of Node's: the dev server runs them on a site's home file (vite-plugin.ts), and the studio
 // on a built site runs them in the browser, on a copy kept there.
-import type { PageInfo, PageSection } from './vite-plugin';
+import type { PageInfo, PageSection } from './page-reader';
 
 const BEAT_ORDER = ['id', 'name', 'home', 'camera', 'lookAt', 'set', 'zones'];
 const PIECE_ORDER = ['id', 'room', 'wall', 'kind', 'at', 'turn', 'lift', 'out', 'size', 'scale', 'delay', 'fold', 'hidden', 'lamp', 'opts'];

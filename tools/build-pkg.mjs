@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // The part of Popfold that Node loads as it is: the Vite plugin, which a site's vite.config.ts imports, and the home
 // file's commands, which the plugin runs. Node will not strip TypeScript from a file inside node_modules, so a site
-// that takes Popfold as a package needs them as JavaScript: lib/vite-plugin.js and lib/home-commands.js, made from
-// src/ by taking their types out (Node's own stripTypeScriptTypes; every line stays where it was) and naming the
-// one import between them with its .js. Everything else is TypeScript that Vite compiles.
+// that takes Popfold as a package needs them as JavaScript: lib/vite-plugin.js, lib/home-commands.js and
+// lib/page-reader.js (which reads a story page), made from src/ by taking their types out (Node's own
+// stripTypeScriptTypes; every line stays where it was) and naming the imports between them with their .js.
+// Everything else is TypeScript that Vite compiles.
 //
 //   node tools/build-pkg.mjs           write lib/
 //   node tools/build-pkg.mjs --check   fail if lib/ is not what src/ makes (pnpm test and pnpm release run this)
@@ -13,12 +14,12 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const FILES = ['vite-plugin', 'home-commands'];
+const FILES = ['vite-plugin', 'home-commands', 'page-reader'];
 
 /** lib/<name>.js as src/<name>.ts makes it now */
 export function libJs(name) {
   const js = stripTypeScriptTypes(readFileSync(resolve(root, `src/${name}.ts`), 'utf8'), { mode: 'strip' })
-    .replace(/from '\.\/home-commands'/g, "from './home-commands.js'");
+    .replace(/from '\.\/(home-commands|page-reader)'/g, "from './$1.js'");
   return `// Made from src/${name}.ts by tools/build-pkg.mjs: edit that file, then run \`pnpm build:pkg\`.\n${js}`;
 }
 /** lib/vite-plugin.js as src/vite-plugin.ts makes it now */

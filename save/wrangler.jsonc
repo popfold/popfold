@@ -1,0 +1,14 @@
+// The save service on Cloudflare. It stays on workers.dev until popfold.ca has moved to the Popfold account
+// (ops/cloudflare-split.md); then it gets the route save.popfold.ca there.
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "popfold-save",
+  "account_id": "7fe5d9a7efc4625417f826c487e2e875",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "vars": {
+    "GITHUB_CLIENT_ID": "",
+    "GITHUB_APP_URL": ""
+  }
+}

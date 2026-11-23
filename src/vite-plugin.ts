@@ -17,8 +17,10 @@ import type { Transition } from './transitions';
 import type { PropStory } from './types';
 // the edits a home file takes, shared with the studio: the one Popfold module this file loads at run time, made into
 // lib/home-commands.js beside lib/vite-plugin.js by tools/build-pkg.mjs
+import { attr, kids, readPage, words, type Node5 } from './page-reader';
 import { commandList, formatHome, HOME_COMMANDS, runCommands, usePageReader, type HomeCommand, type PageText } from './home-commands';
 export * from './home-commands';
+export * from './page-reader';
 
 // ---------------------------------------------------------------------------------------------------------------
 // Dev endpoints. Accepted only from this machine's own browser: requests that came through the Cloudflare tunnel
@@ -96,6 +98,24 @@ export interface SaverOptions {
    * to a home into its file; a home with no file (made in code) cannot be saved from the studio.
    */
   home?: string | string[];
+  /**
+   * Saving from the studio on the deployed site, through Popfold's save service (popfold/save): the build writes
+   * popfold-save.json at the site's root, naming the site's repository, the branch it is built from, and where each
+   * home's file and story page are in it. An editor signs in with GitHub in the studio and their edits are committed
+   * with their own token, so only people who may write to the repository can save.
+   */
+  save?: {
+    /** the save service's address, e.g. https://save.popfold.ca */
+    service: string;
+    /** the site's repository on GitHub, "owner/name" (the Popfold GitHub App installed on it) */
+    repo: string;
+    /** the branch the site is built from (default main) */
+    branch?: string;
+    /** "pull-request" (default): each editor's own branch and a pull request; "direct": commits onto `branch` */
+    mode?: 'pull-request' | 'direct';
+    /** the site's folder in the repository, when it is not the repository's root */
+    folder?: string;
+  };
 }
 
 export function homeSaver(o: SaverOptions = {}): Plugin {
@@ -106,9 +126,25 @@ export function homeSaver(o: SaverOptions = {}): Plugin {
   /** each home file's earlier and undone contents, while the dev server runs: undo and redo of saves */
   type Save = { text: string; names: string[]; page?: { path: string; text: string } };
   const saves = new Map<string, { past: Save[]; future: Save[] }>();
+  let built: ResolvedConfig | null = null;
   return {
     name: 'popfold-home-saver',
-    apply: 'serve',
+    configResolved(c) { if (c.command === 'build') built = c; },
+    // a build with `save` says where its homes are kept, for the save service (served at /popfold-save.json)
+    generateBundle() {
+      if (!built || !o.save) return;
+      const at = (p: string) => [o.save?.folder?.replace(/^\/|\/$/g, ''), p].filter(Boolean).join('/');
+      const homes: Record<string, { file: string; page?: string }> = {};
+      for (const f of homeFiles) {
+        const id = JSON.parse(readFileSync(resolve(built.root, f), 'utf8'))?.id;
+        if (typeof id !== 'string') continue;
+        let page: string | null = null;
+        try { page = storyPageOf(built.plugins, id); } catch { /* its beats are changed by hand */ }
+        homes[id] = { file: at(f.replace(/\\/g, '/')), ...(page ? { page: at(page) } : {}) };
+      }
+      const manifest = { service: o.save.service.replace(/\/$/, ''), repo: o.save.repo, branch: o.save.branch ?? 'main', mode: o.save.mode ?? 'pull-request', homes };
+      this.emitFile({ type: 'asset', fileName: 'popfold-save.json', source: `${JSON.stringify(manifest, null, 2)}\n` });
+    },
     // A save from the studio rewrites the home file, which the studio page imports: left alone, Vite would reload
     // the page, losing the view and the selection. The studio builds the home again from the file it gets back
     // instead. (Another tab with the site shows the change on its next reload.) An edit made by hand still reloads.
@@ -323,97 +359,7 @@ export interface FallbackOptions extends Omit<FallbackPage, 'html' | 'studio'> {
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 // ---------------------------------------------------------------------------------------------------------------
-// Reading a story page. The page is parsed (parse5) only to learn where things are; the plugin then adds its stills,
-// stories and head tags at those places in the page's own text, which is otherwise left exactly as it was written.
-
-type Node5 = { nodeName: string; tagName?: string; value?: string; attrs?: { name: string; value: string }[]; childNodes?: Node5[]; content?: Node5;
-  sourceCodeLocation?: { startOffset: number; endOffset: number; startTag?: { startOffset: number; endOffset: number }; endTag?: { startOffset: number; endOffset: number } } };
-
-/** A <section> of a story page, as the page without 3D needs it. */
-export interface PageSection {
-  id: string | null;
-  /** it has the class "stage": one beat of the story */
-  stage: boolean;
-  /** where its start tag begins, and just after its end tag */
-  start: number;
-  end: number;
-  /** just after its start tag: where its still goes */
-  open: number;
-  /** where a card's content ends: before the end tag of its last <article> or <div>, or of the section itself */
-  cardEnd: number;
-  /** its first <h1> or <h2>, as plain text ('' when it has none) */
-  heading: string;
-  /** its words besides that heading, as plain text, leaving out figures, scripts and nested sections */
-  text: string;
-}
-
-/** What a story page holds, and where. */
-export interface PageInfo {
-  sections: PageSection[];
-  /** before </head>: where the head tags go */
-  headEnd: number;
-  title: string;
-  description: string;
-  hasOgImage: boolean;
-  hasCanonical: boolean;
-}
-
-const attr = (n: Node5, name: string) => n.attrs?.find((a) => a.name === name)?.value;
-const kids = (n: Node5) => (n.nodeName === 'template' ? n.content?.childNodes : n.childNodes) ?? [];
-const words = (s: string) => s.replace(/\s+/g, ' ').trim();
-/** the text under a node, leaving out the elements `skip` names */
-function textOf(n: Node5, skip: (e: Node5) => boolean = () => false): string {
-  if (n.nodeName === '#text') return n.value ?? '';
-  if (n.tagName && skip(n)) return ' ';
-  // every element parts words (chips side by side are separate words; so is a line of links)
-  const inner = kids(n).map((k) => textOf(k, skip)).join('');
-  return n.tagName ? ` ${inner} ` : inner;
-}
-
-/** Read a story page (see PageInfo). Pure: the page's text is not changed. */
-export function readPage(html: string): PageInfo {
-  const doc = parse(html, { sourceCodeLocationInfo: true }) as unknown as Node5;
-  const sections: PageSection[] = [];
-  let head: Node5 | undefined, title = '', description = '', hasOgImage = false, hasCanonical = false;
-  const endOf = (n: Node5) => n.sourceCodeLocation?.endTag?.startOffset ?? n.sourceCodeLocation?.endOffset ?? 0;
-  const visit = (n: Node5) => {
-    if (n.tagName === 'head') head = n;
-    else if (n.tagName === 'title' && !title) title = words(textOf(n));
-    else if (n.tagName === 'meta' && attr(n, 'name') === 'description') description = attr(n, 'content') ?? '';
-    else if (n.tagName === 'meta' && attr(n, 'property') === 'og:image') hasOgImage = true;
-    else if (n.tagName === 'link' && (attr(n, 'rel') ?? '').split(/\s+/).includes('canonical')) hasCanonical = true;
-    else if (n.tagName === 'section' && n.sourceCodeLocation) {
-      // its first heading, and the last card inside it (not inside a nested section)
-      let heading: Node5 | undefined, card: Node5 | undefined;
-      const inside = (e: Node5) => {
-        for (const k of kids(e)) {
-          if (k.tagName === 'section') continue;
-          if (!heading && (k.tagName === 'h1' || k.tagName === 'h2')) heading = k;
-          if ((k.tagName === 'div' || k.tagName === 'article') && (!card || endOf(k) > endOf(card))) card = k;
-          inside(k);
-        }
-      };
-      inside(n);
-      const skip = (e: Node5) => e === heading || e.tagName === 'section' || e.tagName === 'figure' || e.tagName === 'script' || e.tagName === 'style'
-        || (attr(e, 'class') ?? '').split(/\s+/).includes('pf-stories');
-      sections.push({
-        id: attr(n, 'id') ?? null,
-        stage: (attr(n, 'class') ?? '').split(/\s+/).includes('stage'),
-        start: n.sourceCodeLocation.startOffset,
-        end: n.sourceCodeLocation.endOffset,
-        open: n.sourceCodeLocation.startTag?.endOffset ?? n.sourceCodeLocation.startOffset,
-        cardEnd: card ? endOf(card) : endOf(n),
-        heading: heading ? words(textOf(heading)) : '',
-        text: words(textOf(n, (e) => e !== n && skip(e))),
-      });
-    }
-    for (const k of kids(n)) visit(k);
-  };
-  visit(doc);
-  // a page parsed without a written <head> still has one: its tags then go before the body
-  const headEnd = head?.sourceCodeLocation ? endOf(head) : Math.max(0, html.search(/<body\b/i));
-  return { sections, headEnd, title, description, hasOgImage, hasCanonical };
-}
+// Reading a story page: src/page-reader.ts. The beat commands read sections with it.
 usePageReader(readPage);
 
 /** Put text into a page at offsets of the page as it was read: the later places first, so earlier ones hold. */

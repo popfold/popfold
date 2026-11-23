@@ -2,7 +2,7 @@
 // POST /__popfold/home/<id>. A built site has no dev server, so there the same commands run in the browser on a copy
 // of the home file, kept in localStorage until a day after the last edit, with its own undo and redo: the studio
 // works on a deployed site, and its Download takes the edited file away.
-import { runCommands } from '../home-commands';
+import { runCommands, type HomeCommand } from '../home-commands';
 
 type Json = Record<string, unknown>;
 /** what an edit gives back: the same answer the dev server sends */
@@ -22,7 +22,13 @@ let fileOf: (id: string) => unknown = () => undefined;
 export function useHomeFiles(f: (id: string) => unknown) { fileOf = f; }
 
 /** a home's edits kept in this browser: its file now, the earlier and undone versions, and when it was last edited */
-export interface Kept { home: Json; past: string[]; future: string[]; at: number }
+export interface Kept {
+  home: Json; past: string[]; future: string[]; at: number;
+  /** the commands of each edit since the site's file (or the last save to its repository), and of those undone */
+  log?: HomeCommand[][]; undone?: HomeCommand[][];
+  /** the last save to the site's repository (save service) */
+  saved?: { repo: string; branch: string; pullRequest?: string; at: number };
+}
 const keyOf = (id: string) => `popfold:home:${location.pathname}:${id}`;
 
 /** the edits kept for a home, if there are any from the last 24 hours (older ones are forgotten here) */
@@ -47,6 +53,7 @@ export function dropLastEdit(id: string): Json | null {
   const k = keptEdits(id);
   if (!k) return null;
   const prev = k.past.pop();
+  k.log?.pop();
   if (prev === undefined) {
     forgetEdits(id);
     const built = fileOf(id);
@@ -79,6 +86,9 @@ export async function homeRequest(id: string, body?: Json): Promise<HomeAnswer> 
     if (other === undefined) return { ok: false, why: `Nothing to ${body.undo ? 'undo' : 'redo'}.` };
     to.push(now);
     cur.home = JSON.parse(other) as Json;
+    const [logFrom, logTo] = body.undo ? [cur.log ??= [], cur.undone ??= []] : [cur.undone ??= [], cur.log ??= []];
+    const step = logFrom.pop();
+    if (step) logTo.push(step);
   } else {
     const next = structuredClone(cur.home);
     try { runCommands(next, body.commands); } catch (err) { return { ok: false, why: (err as Error).message }; }
@@ -86,6 +96,8 @@ export async function homeRequest(id: string, body?: Json): Promise<HomeAnswer> 
     cur.past.push(now);
     cur.future = [];
     cur.home = next;
+    (cur.log ??= []).push(body.commands as HomeCommand[]);
+    cur.undone = [];
   }
   cur.past.splice(0, Math.max(0, cur.past.length - 50)); // a day's work, not a full history
   cur.at = Date.now();
@@ -101,4 +113,72 @@ async function devJson(r: Response): Promise<unknown> {
   // the dev server's own refusals are one plain sentence ("Saving only works on the local dev server")
   if (text && text.length < 200 && !text.trimStart().startsWith('<')) throw new Error(text);
   throw new Error(`the dev server did not answer (${r.status})`);
+}
+
+// ----- saving to the site's repository: a site that turned on the save service publishes /popfold-save.json -----
+
+/** where a built site's edits can be saved: the save service, and the site's repository */
+export interface SaveSite { service: string; repo: string; branch: string; mode: 'pull-request' | 'direct' }
+let siteOnce: Promise<SaveSite | null> | null = null;
+/** the site's save service, if it has one (null: edits stay in this browser and are downloaded) */
+export function saveSite(): Promise<SaveSite | null> {
+  siteOnce ??= fetch(new URL('/popfold-save.json', location.origin))
+    .then((r) => (r.ok ? r.json() : null))
+    .then((m) => (m && typeof m.service === 'string' && typeof m.repo === 'string'
+      ? { service: m.service.replace(/\/$/, ''), repo: m.repo, branch: m.branch, mode: m.mode === 'direct' ? 'direct' : 'pull-request' } as SaveSite
+      : null))
+    .catch(() => null);
+  return siteOnce;
+}
+
+interface Signed { session: string; login: string; until: number }
+const signedKey = (service: string) => `popfold:save-session:${service}`;
+/** the editor signed in to the save service from this browser, if they still are */
+export function signedIn(site: SaveSite): Signed | null {
+  try {
+    const s = JSON.parse(localStorage.getItem(signedKey(site.service)) ?? 'null') as Signed | null;
+    return s && s.until > Date.now() ? s : null;
+  } catch { return null; }
+}
+const signOut = (site: SaveSite) => { try { localStorage.removeItem(signedKey(site.service)); } catch { /* not kept */ } };
+
+/** sign in with GitHub, in a window of the save service's; gives the editor's login, or null when they cancel */
+export function signInToSave(site: SaveSite): Promise<string | null> {
+  const from = new URL(site.service).origin;
+  const win = open(`${site.service}/sign-in?origin=${encodeURIComponent(location.origin)}`, 'popfold-save', 'width=520,height=640');
+  if (!win) return Promise.reject(new Error('the browser blocked the sign-in window: allow pop-ups for this site'));
+  return new Promise((done) => {
+    const closed = setInterval(() => { if (win.closed) { clearInterval(closed); removeEventListener('message', on); done(null); } }, 500);
+    const on = (e: MessageEvent) => {
+      if (e.origin !== from || e.data?.type !== 'popfold-save') return;
+      clearInterval(closed); removeEventListener('message', on);
+      if (!e.data.session) { done(null); return; }
+      try { localStorage.setItem(signedKey(site.service), JSON.stringify({ session: e.data.session, login: e.data.login, until: e.data.until ?? Date.now() + 8 * 3600_000 } satisfies Signed)); } catch { /* kept for this page only */ }
+      done(e.data.login);
+    };
+    addEventListener('message', on);
+  });
+}
+
+/**
+ * Save a home's kept edits to the site's repository: the save service replays their commands on the newest home
+ * file there and commits it. The kept copy becomes the repository's file, with no edits left to save.
+ */
+export async function saveToRepo(site: SaveSite, id: string): Promise<HomeAnswer & { signIn?: boolean; branch?: string; pullRequest?: string }> {
+  const k = keptEdits(id);
+  const commands = (k?.log ?? []).flat();
+  if (!k || !commands.length) return { ok: false, why: 'Nothing to save: no edits since the last save.' };
+  const who = signedIn(site);
+  if (!who) return { ok: false, why: 'Sign in with GitHub to save.', signIn: true };
+  let res: HomeAnswer & { signIn?: boolean; branch?: string; pullRequest?: string };
+  try {
+    const r = await fetch(`${site.service}/home/${id}`, { method: 'POST', headers: { authorization: `Bearer ${who.session}`, 'content-type': 'application/json' }, body: JSON.stringify({ commands }) });
+    res = await r.json();
+  } catch (err) { return { ok: false, why: `the save service did not answer (${(err as Error).message})` }; }
+  if (res.signIn) signOut(site);
+  if (!res.ok || !res.home) return res;
+  const kept: Kept = { home: res.home, past: [], future: [], at: Date.now(), log: [], undone: [], saved: { repo: site.repo, branch: res.branch ?? site.branch, pullRequest: res.pullRequest, at: Date.now() } };
+  try { localStorage.setItem(keyOf(id), JSON.stringify(kept)); } catch { /* the repository has it */ }
+  globalThis.dispatchEvent?.(new CustomEvent(KEPT_EVENT, { detail: id }));
+  return { ...res, file: `${site.repo} (${res.branch})` };
 }

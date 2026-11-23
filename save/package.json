@@ -1,0 +1,13 @@
+{
+  "name": "@popfold/save",
+  "private": true,
+  "type": "module",
+  "description": "Popfold's save service: the studio on a deployed site saves its edits into the site's GitHub repository.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.166.0"
+  }
+}
