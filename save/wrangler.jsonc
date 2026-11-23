@@ -6,6 +6,9 @@
   "name": "popfold-save",
   "main": "src/worker.ts",
   "compatibility_date": "2026-11-01",
+  // fetch the sites' popfold-save.json over the public internet: without it, a site on the same account (or the
+  // same zone) as the service is not reached
+  "compatibility_flags": ["global_fetch_strictly_public"],
   "workers_dev": true,
   "vars": {
     "GITHUB_CLIENT_ID": "",
